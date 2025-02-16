@@ -1,0 +1,74 @@
+:root {
+	color-scheme: light;
+	font-family: "Atkinson Hyperlegible Mono", system-ui, sans-serif;
+	background-color: light-dark(hsl(from Canvas h s calc(l * 0.95)), Canvas);
+
+	--color-bq: #0088ce;
+	--color-cpc: #002395;
+	--color-gpc: #427a26;
+	--color-ind: #c0c0c0;
+	--color-lpc: #d71920;
+	--color-ndp: #ff5800;
+}
+
+body {
+	margin: 2rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	@view-transition {
+		navigation: auto;
+	}
+}
+
+select {
+	font-family: inherit;
+	font-size: inherit;
+	field-sizing: content;
+}
+
+button {
+	font-family: inherit;
+	font-size: 1rem;
+}
+
+label:has(input[type="checkbox"]) {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+}
+
+.members-list {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(345px, 1fr));
+	list-style: none;
+	padding-inline-start: 0;
+	gap: 1rem;
+}
+
+.member-card {
+	@supports not selector(:playing) {
+		content-visibility: auto;
+		contain-intrinsic-block-size: 20rem;
+	}
+	padding: 1rem;
+	border-block-end-width: 6px;
+	border-block-end-style: solid;
+	border-block-end-color: var(--color-ind);
+	background-color: light-dark(
+		Canvas,
+		hsl(from Canvas h s calc(l * 1.5))
+	);
+
+	dl {
+		display: grid;
+		grid-template-columns: min-content auto;
+		gap: 0.5rem;
+	}
+	
+	&[data-party="bq"]  { border-block-end-color: var(--color-bq); }
+	&[data-party="cpc"] { border-block-end-color: var(--color-cpc); }
+	&[data-party="gpc"] { border-block-end-color: var(--color-gpc); }
+	&[data-party="lpc"] { border-block-end-color: var(--color-lpc); }
+	&[data-party="ndp"] { border-block-end-color: var(--color-ndp); }
+}

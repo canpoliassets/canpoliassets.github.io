@@ -1,0 +1,22 @@
+{
+	"bq": {
+		"long": "Bloc Québécois",
+		"short": "Bloc Québécois"
+	},
+	"cpc": {
+		"long": "Conservative Party of Canada",
+		"short": "Conservative"
+	},
+	"gpc": {
+		"long": "Green Party of Canada",
+		"short": "Green Party"
+	},
+	"lpc": {
+		"long": "Liberal Party of Canada",
+		"short": "Liberal"
+	},
+	"ndp": {
+		"long": "New Democratic Party",
+		"short": "NDP"
+	}
+}

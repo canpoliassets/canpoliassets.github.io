@@ -1,0 +1,89 @@
+extends _public
+
+block body
+	h1 Members
+	form(style="display: grid; justify-items: start; gap: 0.5rem;")
+		label(for="party")
+			| Party 
+			select#party(name="party")
+				option(value="") All
+				each party, id in parties
+					option(value=id selected=id === selectedParty)=party.short
+		label(for="homeowner")
+			input#homeowner(type="checkbox" name="homeowner" value="" checked=homeowner)
+			|  Homeowner
+		label(for="landlord")
+			input#landlord(type="checkbox" name="landlord" value="" checked=landlord)
+			|  Landlord
+		label(for="table")
+			input#table(type="checkbox" name="table" value="" checked=asTable)
+			|  As table
+		button Filter
+	case members.length
+		when 0: p No members.
+		when 1: p 1 member.
+		default: p #{members.length} members.
+
+	if asTable
+		table
+			style.
+				@scope {
+					th:first-of-type { inline-size: 20rem; }
+					th:nth-of-type(2) { inline-size: 14rem; }
+					th:nth-of-type(3),
+					th:nth-of-type(4),
+					th:nth-of-type(5),
+					th:nth-of-type(6) { inline-size: 10rem; }
+
+					th:nth-of-type(1),
+					th:nth-of-type(2),
+					th:nth-of-type(3) {
+						text-align: start;
+					}
+					td:nth-of-type(4),
+					td:nth-of-type(5),
+					td:nth-of-type(6) {
+						text-align: center;
+					}
+				}
+			thead
+				th Name
+				th Province
+				th Party
+				th Homeowner
+				th Landlord
+				th Investments
+			each member in members
+				- const slug = member.name.toLowerCase().replaceAll(" ", "-");
+				tr(style=`view-transition-name: ${slug}`)
+					td=member.name
+					td=member.province
+					- let party = parties[member.party];
+					td=party ? party.short : "Independent"
+					td=member.homeowner
+					td=member.landlord
+					td=member.investments
+	else
+		ul.members-list(role="list")
+			each member in members
+				- const slug = member.name.toLowerCase().replaceAll(" ", "-");
+				li.member-card(data-party=member.party style=`view-transition-name: ${slug}`)
+					h2: a(href=`/members/${slug}`)=member.name
+					- let party = parties[member.party];
+					p=party ? party.short : "Independent"
+					p(style="display: flex; gap: 0.5rem;")
+						span(style="flex-shrink: 0")=member.province
+						span –
+						span=member.riding
+					case member.homeowner 
+						when "yes": p Is a homeowner.
+						when "no": p Is not a homeowner.
+						default: break
+					case member.landlord
+						when "yes": p Is a landlord.
+						when "no": p Is not a landlord.
+						default: break
+					case member.investments 
+						when "yes": p Holds major investments.
+						when "no": p No major investments.
+						default: p Unknown investments.
