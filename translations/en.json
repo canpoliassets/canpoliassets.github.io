@@ -1,0 +1,52 @@
+{
+	"provinceSlashTerritory": "Province/Territory",
+	"members": "Members",
+	"party": "Political affiliation",
+	"homeowner": "Homeowner",
+	"landlord": "Landlord",
+	"all": "All",
+	"name": "Name",
+	"riding": "Riding",
+	"provinces": {
+		"ab": "Alberta",
+		"bc": "British Columbia",
+		"mb": "Manitoba",
+		"nb": "New Brunswick",
+		"nl": "Newfoundland and Labrador",
+		"ns": "Nova Scotia",
+		"nt": "Northwest Territories",
+		"nu": "Nunavut",
+		"on": "Ontario",
+		"pei": "Prince Edward Island",
+		"qc": "Quebec",
+		"sk": "Saskatchewan",
+		"yt": "Yukon"
+	},
+	"parties": {
+		"bq": {
+			"long": "Bloc Québécois",
+			"short": "Bloc Québécois",
+			"abbr": "BQ"
+		},
+		"cpc": {
+			"long": "Conservative Party of Canada",
+			"short": "Conservative",
+			"abbr": "CPC"
+		},
+		"gpc": {
+			"long": "Green Party of Canada",
+			"short": "Green Party",
+			"abbr": ""
+		},
+		"lpc": {
+			"long": "Liberal Party of Canada",
+			"short": "Liberal",
+			"abbr": "LPC"
+		},
+		"ndp": {
+			"long": "New Democratic Party",
+			"short": "NDP",
+			"abbr": "NDP"
+		}
+	}
+}

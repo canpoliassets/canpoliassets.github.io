@@ -1,0 +1,52 @@
+{
+	"provinceSlashTerritory": "Province/Territoire",
+	"members": "Députés",
+	"party": "Affiliation politique",
+	"homeowner": "Propriétaire d’une habitation",
+	"landlord": "Propriétaire",
+	"all": "Toutes",
+	"name": "Nom",
+	"riding": "Circonscription",
+	"provinces": {
+		"ab": "Alberta",
+		"bc": "Colombie-Britannique",
+		"mb": "Manitoba",
+		"nb": "Nouveau-Brunswick",
+		"nl": "Terre-Neuve-et-Labrador",
+		"ns": "Nouvelle-Écosse",
+		"nt": "Territoires du Nord-Ouest",
+		"nu": "Nunavut",
+		"on": "Ontario",
+		"pei": "Île-du-Prince-Édouard",
+		"qc": "Québec",
+		"sk": "Saskatchewan",
+		"yt": "Yukon"
+	},
+	"parties": {
+		"bq": {
+			"long": "Bloc Québécois",
+			"short": "Bloc Québécois",
+			"abbr": "BQ"
+		},
+		"cpc": {
+			"long": "Parti conservateur du Canada",
+			"short": "Conservateur",
+			"abbr": "PCC"
+		},
+		"gpc": {
+			"long": "Parti vert du Canada",
+			"short": "Parti vert",
+			"abbr": ""
+		},
+		"lpc": {
+			"long": "Parti libéral du Canada",
+			"short": "Libéral",
+			"abbr": "PLC"
+		},
+		"ndp": {
+			"long": "Nouveau Parti démocratique",
+			"short": "NPD",
+			"abbr": "NPD"
+		}
+	}
+}

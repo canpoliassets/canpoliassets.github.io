@@ -4,6 +4,7 @@
 	},
 	"imports": {
 		"hono": "jsr:@hono/hono",
-		"pug": "npm:pug"
+		"pug": "npm:pug",
+		"rosetta": "npm:rosetta"
 	}
 }

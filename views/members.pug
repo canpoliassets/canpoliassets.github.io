@@ -1,89 +1,104 @@
 extends _public
 
 block body
-	h1 Members
-	form(style="display: grid; justify-items: start; gap: 0.5rem;")
-		label(for="party")
-			| Party 
-			select#party(name="party")
-				option(value="") All
-				each party, id in parties
-					option(value=id selected=id === selectedParty)=party.short
-		label(for="homeowner")
-			input#homeowner(type="checkbox" name="homeowner" value="" checked=homeowner)
-			|  Homeowner
-		label(for="landlord")
-			input#landlord(type="checkbox" name="landlord" value="" checked=landlord)
-			|  Landlord
-		label(for="table")
-			input#table(type="checkbox" name="table" value="" checked=asTable)
-			|  As table
-		button Filter
-	case members.length
-		when 0: p No members.
-		when 1: p 1 member.
-		default: p #{members.length} members.
+	nav: a(href=languageSwap.url)=languageSwap.label
+	main
+		h1=title
+		form#filter(style="display: grid; justify-items: start; gap: 0.5rem;")
+			label(for="province")
+				| #{t("provinceSlashTerritory")} 
+				select#party(name="province")
+					option(value="")=t("all")
+					each province, id in provinces
+						option(value=id selected=id === selectedProvince)=t(`provinces.${id}`)
+			label(for="party")
+				| #{t("party")} 
+				select#party(name="party")
+					option(value="")=t("all")
+					each party, id in parties
+						option(value=id selected=id === selectedParty)=t(`parties.${id}.short`)
+			label(for="homeowner")
+				input#homeowner(type="checkbox" name="homeowner" value="" checked=homeowner)
+				|  #{t("homeowner")}
+			label(for="landlord")
+				input#landlord(type="checkbox" name="landlord" value="" checked=landlord)
+				|  #{t("landlord")}
+			label(for="table")
+				input#table(type="checkbox" name="table" value="" checked=asTable)
+				|  As table
+			button Filter
+		case members.length
+			when 0: p No members.
+			when 1: p 1 member.
+			default: p #{members.length} members.
 
-	if asTable
-		table
-			style.
-				@scope {
-					th:first-of-type { inline-size: 20rem; }
-					th:nth-of-type(2) { inline-size: 14rem; }
-					th:nth-of-type(3),
-					th:nth-of-type(4),
-					th:nth-of-type(5),
-					th:nth-of-type(6) { inline-size: 10rem; }
-
-					th:nth-of-type(1),
-					th:nth-of-type(2),
-					th:nth-of-type(3) {
-						text-align: start;
-					}
-					td:nth-of-type(4),
-					td:nth-of-type(5),
-					td:nth-of-type(6) {
-						text-align: center;
-					}
-				}
-			thead
-				th Name
-				th Province
-				th Party
-				th Homeowner
-				th Landlord
-				th Investments
-			each member in members
-				- const slug = member.name.toLowerCase().replaceAll(" ", "-");
-				tr(style=`view-transition-name: ${slug}`)
-					td=member.name
-					td=member.province
-					- let party = parties[member.party];
-					td=party ? party.short : "Independent"
-					td=member.homeowner
-					td=member.landlord
-					td=member.investments
-	else
-		ul.members-list(role="list")
-			each member in members
-				- const slug = member.name.toLowerCase().replaceAll(" ", "-");
-				li.member-card(data-party=member.party style=`view-transition-name: ${slug}`)
-					h2: a(href=`/members/${slug}`)=member.name
-					- let party = parties[member.party];
-					p=party ? party.short : "Independent"
-					p(style="display: flex; gap: 0.5rem;")
-						span(style="flex-shrink: 0")=member.province
-						span –
-						span=member.riding
-					case member.homeowner 
-						when "yes": p Is a homeowner.
-						when "no": p Is not a homeowner.
-						default: break
-					case member.landlord
-						when "yes": p Is a landlord.
-						when "no": p Is not a landlord.
-						default: break
-					case member.investments 
-						when "yes": p Holds major investments.
-						when "no": p No major investments.
-						default: p Unknown investments.
+		if asTable
+			table.members-table
+				thead
+					th=t("name")
+					th(aria-sort="ascending")
+						span=t("provinceSlashTerritory")
+						span.actions
+							style.
+								@scope {
+									:scope {
+										display: inline-flex;
+										align-items: center;
+										vertical-align: center;
+									}
+									button {
+										background: none;
+										color: inherit;
+										padding: 0.25rem;
+										line-height: 1;
+										border: none;
+										text-box-trim: trim-both;
+										text-box-edge: ex alphabetic;
+									}
+								}
+							button(form="filter" name="sort" aria-pressed="true" value="province-asc")
+								span.visually-hidden Sort provinces ascending
+								span(aria-hidden="true") ▴
+							button(form="filter" name="sort" aria-pressed="false" value="province-desc")
+								span.visually-hidden Sort provinces descending
+								span(aria-hidden="true") ▾
+					th=t("riding")
+					th=t("party")
+					th=t("homeowner")
+					th=t("landlord")
+					th Investments
+				each member in members
+					- const slug = member.name.toLowerCase().replaceAll(" ", "-");
+					tr(data-party=member.party style=`view-transition-name: ${slug}`)
+						td=member.name
+						td=provinces[member.province].short
+						- let party = parties[member.party];
+						td=member.riding
+						td=party ? party.short : "Independent"
+						td=member.homeowner
+						td=member.landlord
+						td=member.investments
+		else
+			ul.members-list(role="list")
+				each member in members
+					- const slug = member.name.toLowerCase().replaceAll(" ", "-");
+					li.member-card(data-party=member.party style=`view-transition-name: ${slug}`)
+						h2: a(href=`/members/${slug}`)=member.name
+						- let party = parties[member.party];
+						p=party ? party.short : "Independent"
+						p(style="display: flex; gap: 0.5rem;")
+							span(style="flex-shrink: 0")=provinces[member.province].long
+							span –
+							span=member.riding
+						case member.homeowner 
+							when "yes": p Is a homeowner.
+							when "no": p Is not a homeowner.
+							default: break
+						case member.landlord
+							when "yes": p Is a landlord.
+							when "no": p Is not a landlord.
+							default: break
+						case member.investments 
+							when "yes": p Holds major investments.
+							when "no": p No major investments.
+							default: p Unknown investments.
