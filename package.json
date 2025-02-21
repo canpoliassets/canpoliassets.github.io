@@ -1,0 +1,25 @@
+{
+  "name": "mplandlordchecker",
+  "version": "1.0.0",
+  "description": "Check if your MP is a landlord.",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "mp"
+  ],
+  "author": "OmegaSheep",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongodb": "^6.13.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@flydotio/dockerfile": "^0.7.4"
+  }
+}
