@@ -1,3 +1,27 @@
+const LanguageSwitcher = () => {
+    const { i18n } = useTranslation();
+
+    const changeLanguage = (lng) => {
+        i18n.changeLanguage(lng);
+    };
+
+    return React.createElement('div', null,
+        React.createElement('a', { href: 'javascript:void(0);', onClick: () => changeLanguage("en"), style: { fontWeight: i18n.language === "en" ? "bold" : "normal" } }, 'En'),
+        React.createElement('span', {}, '|'),
+        React.createElement('a', { href: 'javascript:void(0);', onClick: () => changeLanguage("fr"), style: { fontWeight: i18n.language === "fr" ? "bold" : "normal" } }, 'Fr')
+    );
+};
+
+const Header = () => {
+    const { t } = useTranslation();
+    return React.createElement('div', { className: 'header' },
+        React.createElement('h1', null, t('Is My MP a Landlord?')),
+        React.createElement('span', null, t('All data sourced from the ')),
+        React.createElement('a', { href: 'https://prciec-rpccie.parl.gc.ca/EN/PublicRegistries/Pages/PublicRegistry.aspx', target: '_blank' }, t('Office of Conflict of Interest and Ethics Commissioner')),
+        React.createElement('h6', null, t('See our '), React.createElement('a', { href: 'about' }, t('About Us')))
+    );
+}
+
 function MPPortrait({ mpData }) {
     return React.createElement('div', { className: 'mp-list' }, 
     React.createElement('a', { className: 'mp-container', href: `mp/${mpData.name.replaceAll(' ','_').toLowerCase()}_${mpData.province.toLowerCase()}`},
@@ -24,9 +48,19 @@ function MPPortrait({ mpData }) {
 function MPList() {
     const [mps, setMps] = React.useState([]);
     const [error, setError] = React.useState(null);
+    const { i18n, t } = useTranslation();
 
-    const [selectedProvince, setSelectedProvince] = React.useState("All");
-    const [selectedParty, setSelectedParty] = React.useState("All");
+    const [selectedProvince, setSelectedProvince] = React.useState(t("All"));
+    const [selectedParty, setSelectedParty] = React.useState(t("All"));
+
+    React.useEffect(() => {
+        console.log(i18n.language, t("All"))
+        setSelectedProvince(t("All"));
+    }, [i18n.language, t]);
+
+    React.useEffect(() => {
+        setSelectedParty(t("All"));
+    }, [i18n.language, t]);
   
     React.useEffect(() => {
         fetch('/api/mps-data')
@@ -44,21 +78,23 @@ function MPList() {
         return React.createElement('div', null, 'Error loading MP data');
     }
 
-    const provinces = React.useMemo(() => ["All", ...new Set(mps.map(mp => mp.province))], [mps]);
-    const parties = React.useMemo(() => ["All", ...new Set(mps.map(mp => mp.party))], [mps]);
+    const provinces = React.useMemo(() => [t("All"), ...new Set(mps.map(mp => mp.province))], [mps, i18n.language]);
+    const parties = React.useMemo(() => [t("All"), ...new Set(mps.map(mp => mp.party))], [mps, i18n.language]);
 
     const filteredMps = React.useMemo(() =>
         mps.filter(mp => {
-        const provinceMatch = selectedProvince === "All" || mp.province === selectedProvince;
-        const partyMatch = selectedParty === "All" || mp.party === selectedParty;
+        const provinceMatch = selectedProvince === t("All") || mp.province === selectedProvince;
+        const partyMatch = selectedParty === t("All") || mp.party === selectedParty;
             return provinceMatch && partyMatch;
         }),
         [mps, selectedProvince, selectedParty]
     );
 
     return React.createElement('div', { className: 'mega-container'},
+        React.createElement(LanguageSwitcher), 
+        React.createElement('header', {className: "title"}, React.createElement(Header)),
         React.createElement('div', { className: 'sorting-container'},
-            React.createElement('p', {className: 'filter-text' }, 'Select Party'),
+            React.createElement('p', {className: 'filter-text' }, t('Select Party')),
             React.createElement(
                 "select",
                 {
@@ -67,11 +103,6 @@ function MPList() {
                     setSelectedParty(e.target.value),
                 className: "filter-selector"
                 },
-                React.createElement(
-                "option",
-                { value: "All" },
-                "Filter by Party"
-                ),
                 ...parties.map(party => 
                     React.createElement(
                         "option",
@@ -80,7 +111,7 @@ function MPList() {
                     )
                 )
             ),
-            React.createElement('p', {className: 'filter-text' }, 'Select Province'),
+            React.createElement('p', {className: 'filter-text' }, t('Select Province')),
             React.createElement(
                 "select",
                 {
@@ -89,12 +120,7 @@ function MPList() {
                     setSelectedProvince(e.target.value),
                 className: "filter-selector"
                 },
-                React.createElement(
-                "option",
-                { value: "All" },
-                "Filter by Province"
-                ),
-                ...provinces.map(province => 
+                ...provinces.map(province =>  
                     React.createElement(
                         "option",
                         { key: province, value: province },
@@ -122,4 +148,4 @@ document.addEventListener('DOMContentLoaded', () => {
   
 // Render the MPList component
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(React.createElement(MPList));
+root.render(React.createElement(I18nextProvider, { i18n }, React.createElement(MPList)));

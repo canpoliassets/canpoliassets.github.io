@@ -21,6 +21,7 @@ const disclosures = [{
   name: "John Doe",
   category: "Assets",
   content: "Example content from ethics portal"
+  content_fr: "Exemple de contenu du portail d'éthique"
 }];
 
 const sheetData = [{

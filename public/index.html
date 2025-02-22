@@ -1,16 +1,14 @@
 <!DOCTYPE html>
 <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/i18next@latest/dist/umd/i18next.js"></script>
+<script src="https://unpkg.com/react-i18next@latest/dist/umd/react-i18next.js"></script>
+<script src="https://unpkg.com/i18next-browser-languagedetector@latest/dist/umd/i18nextBrowserLanguageDetector.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/i18next-http-backend@1.3.1/i18nextHttpBackend.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="./index.css">
 <html>
   <head><title>Is My MP a Landlord?</title></head>
-  <header class="title">
-    <h1>Is My MP a Landlord?</h1>
-    <span>All data sourced from the </span>
-    <a href="https://prciec-rpccie.parl.gc.ca/EN/PublicRegistries/Pages/PublicRegistry.aspx">Office of Conflict of Interest and Ethics Commissioner</a>
-    <h6>See our <a href="about">About Us</a></h6>
-  </header>
   <body>
     <div>
         <div id="root"></div>
@@ -18,4 +16,36 @@
   </body>
   <footer class="contact">Contact: mplandlordcheck [ at ] protonmail [ dot ] com</footer>
 </html>
+<script>
+const { I18nextProvider, useTranslation } = ReactI18next;
+const i18n = i18next.createInstance();
+
+i18n
+    .use(i18nextBrowserLanguageDetector)
+    .use(i18nextHttpBackend)
+    .init({
+        backend: {
+            loadPath: '/locales/{{lng}}.json'
+        },
+        load: "languageOnly",
+        supportedLngs: ['en', 'fr'],
+        fallbackLng: 'en',
+        preload: ['en'],
+        detection: {
+            order: ['navigator', 'localStorage', 'sessionStorage', 'cookie'],
+            caches: ['localStorage', 'cookie']
+        }
+    });
+
+  document.title = i18n.t('Is My MP a Landlord?');
+
+  if (!i18n.language || !i18n.options.supportedLngs.includes(i18n.language)) {
+    i18n.changeLanguage('en');
+  }
+
+function changeLanguage(lng) {
+    i18n.changeLanguage(lng);
+}
+</script>
+
 <script type="module" src="index.js"></script>

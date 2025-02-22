@@ -55,9 +55,10 @@ npm start
 
 ```
 {
-    name: String,     # name of mp
-    category: String, # eg. Assets, Sponsored Travel
-    content: String,  # full content from ethics portal
+    name: String,       # name of mp
+    category: String,   # eg. Assets, Sponsored Travel
+    content: String,    # full content from ethics portal
+    content_fr: String, # full content from ethics portal but in french
 }
 ```
 

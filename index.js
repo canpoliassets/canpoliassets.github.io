@@ -14,12 +14,31 @@ const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
 const path = require('path');
+// const i18next = require('i18next');
+// const Backend = require('i18next-fs-backend');
+// const i18nextMiddleware = require('i18next-http-middleware');
 
+// i18next
+//     .use(Backend)
+//     .use(i18nextMiddleware.LanguageDetector)
+//     .init({
+//         backend: {
+//             loadPath: __dirname + '/resources/locales/{{lng}}.json'
+//         },
+//         fallbackLng: 'en',
+//         preload: ['en']
+//     });
+
+
+// app.use(i18nextMiddleware.handle(i18next));
 app.use(express.static(path.join(__dirname, 'public'), {
     setHeaders: (res, path) => {
-      if (path.endsWith('.js')) {
-        res.setHeader('Content-Type', 'text/javascript');
-      }
+        if (path.endsWith('.js')) {
+          res.setHeader('Content-Type', 'text/javascript');
+        }
+        if (path.endsWith('.json')) {
+          res.setHeader('Content-Type', 'application/json');
+        }
     }
   }));
 
