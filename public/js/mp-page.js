@@ -98,7 +98,7 @@ function MPPortrait({ mpData }) {
     return React.createElement('div', { className: 'mp-container-thin' }, 
         React.createElement('div', { className: 'flex' }, 
             React.createElement('div', { className: 'img-container' }, 
-                React.createElement('img', { className: 'mp-img', src: `/images/${mpData.image_name}` })
+                React.createElement('img', { className: 'mp-img', src: `/images/mp_images/${mpData.image_name}` })
             ),
             React.createElement('div', { className: 'txt-container' }, 
                 React.createElement('div', { className: 'top-tile' }, 

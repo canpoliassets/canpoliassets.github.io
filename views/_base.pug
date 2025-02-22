@@ -13,8 +13,9 @@ html(lang=`${lang}-ca`)
         mixin nav-link
           a(aria-current=attributes.href === currentPath && "page")&attributes(attributes)
             block
-        +nav-link(href="/")=siteTitle
+        +nav-link(href="/") Home
         +nav-link(href="/about") About
+        +nav-link(href="/ontario") Ontario MPPS
     main
       block main
     footer.contact
