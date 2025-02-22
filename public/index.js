@@ -1,3 +1,6 @@
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+
 function MPPortrait({ mpData }) {
     return React.createElement('div', { className: 'mp-list' }, 
     React.createElement('a', { className: 'mp-container', href: `mp/${mpData.name.replaceAll(' ','_').toLowerCase()}_${mpData.province.toLowerCase()}`},
@@ -121,5 +124,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
   
 // Render the MPList component
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(React.createElement(MPList));
+ReactDOM.render(React.createElement(MPList), document.getElementById('root'));

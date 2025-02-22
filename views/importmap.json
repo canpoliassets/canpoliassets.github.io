@@ -1,0 +1,9 @@
+{
+    "imports": {
+        "preact": "https://esm.sh/preact@10.23.1",
+        "preact/": "https://esm.sh/preact@10.23.1/",
+        "react": "https://esm.sh/preact@10.23.1/compat",
+        "react/": "https://esm.sh/preact@10.23.1/compat/",
+        "react-dom": "https://esm.sh/preact@10.23.1/compat"
+    }
+}
