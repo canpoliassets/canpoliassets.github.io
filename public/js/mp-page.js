@@ -1,3 +1,29 @@
+const LanguageSwitcher = () => {
+    const { i18n } = useTranslation();
+
+    const changeLanguage = (lng) => {
+        i18n.changeLanguage(lng);
+        localStorage.setItem('i18nextLng', lng);
+    };
+
+    return React.createElement('div', null,
+        React.createElement('a', { href: '#', onClick: (e) => e.preventDefault() || changeLanguage("en"), style: { fontWeight: i18n.language === "en" ? "bold" : "normal" } }, 'En'),
+        React.createElement('span', {}, '|'),
+        React.createElement('a', { href: '#', onClick: (e) => e.preventDefault() || changeLanguage("fr"), style: { fontWeight: i18n.language === "fr" ? "bold" : "normal" } }, 'Fr')
+    );
+};
+
+const Header = () => {
+    const { t } = useTranslation();
+    return React.createElement('div', { className: 'header' },
+        React.createElement('h1', null, t('Is My MP a Landlord?')),
+        React.createElement('span', null, t('All data sourced from the ')),
+        React.createElement('a', { href: 'https://prciec-rpccie.parl.gc.ca/EN/PublicRegistries/Pages/PublicRegistry.aspx', target: '_blank' }, t('Office of Conflict of Interest and Ethics Commissioner')),
+        React.createElement('h6', null, t('See our '), React.createElement('a', { href: '/about' }, t('About Us')))
+    );
+}
+
+
 let mpname = window.location.pathname.split('/')[2];
 
 function homeOwnerText(name, status) {
@@ -65,6 +91,8 @@ function MPPortraitContainer({ mpData, sheetData, disclosures }) {
     }, {});
 
     return React.createElement('div', { className: 'max'}, 
+        React.createElement(LanguageSwitcher),
+        React.createElement('header', {className: "title"}, React.createElement(Header)),
         React.createElement('div', { className: 'centered'}, 
             React.createElement(MPPortrait, { mpData }),
         ),
@@ -125,7 +153,7 @@ fetch(`/api/mp-data?name=${mpname}`)
     .then(data => {
         // Render the MPList component
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(React.createElement(MPPortraitContainer, { mpData: data.mp[0], sheetData: data.sheet_data, disclosures: data.disclosures }));
+        root.render(React.createElement(I18nextProvider, { i18n }, React.createElement(MPPortraitContainer, { mpData: data.mp[0], sheetData: data.sheet_data, disclosures: data.disclosures })));
     })
     .catch(error => {
         console.error('Error:', error);

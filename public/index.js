@@ -3,12 +3,13 @@ const LanguageSwitcher = () => {
 
     const changeLanguage = (lng) => {
         i18n.changeLanguage(lng);
+        localStorage.setItem('i18nextLng', lng);
     };
 
     return React.createElement('div', null,
-        React.createElement('a', { href: 'javascript:void(0);', onClick: () => changeLanguage("en"), style: { fontWeight: i18n.language === "en" ? "bold" : "normal" } }, 'En'),
+        React.createElement('a', { href: '#', onClick: (e) => e.preventDefault() || changeLanguage("en"), style: { fontWeight: i18n.language === "en" ? "bold" : "normal" } }, 'En'),
         React.createElement('span', {}, '|'),
-        React.createElement('a', { href: 'javascript:void(0);', onClick: () => changeLanguage("fr"), style: { fontWeight: i18n.language === "fr" ? "bold" : "normal" } }, 'Fr')
+        React.createElement('a', { href: '#', onClick: (e) => e.preventDefault() || changeLanguage("fr"), style: { fontWeight: i18n.language === "fr" ? "bold" : "normal" } }, 'Fr')
     );
 };
 
@@ -18,7 +19,7 @@ const Header = () => {
         React.createElement('h1', null, t('Is My MP a Landlord?')),
         React.createElement('span', null, t('All data sourced from the ')),
         React.createElement('a', { href: 'https://prciec-rpccie.parl.gc.ca/EN/PublicRegistries/Pages/PublicRegistry.aspx', target: '_blank' }, t('Office of Conflict of Interest and Ethics Commissioner')),
-        React.createElement('h6', null, t('See our '), React.createElement('a', { href: 'about' }, t('About Us')))
+        React.createElement('h6', null, t('See our '), React.createElement('a', { href: '/about' }, t('About Us')))
     );
 }
 
@@ -54,7 +55,6 @@ function MPList() {
     const [selectedParty, setSelectedParty] = React.useState(t("All"));
 
     React.useEffect(() => {
-        console.log(i18n.language, t("All"))
         setSelectedProvince(t("All"));
     }, [i18n.language, t]);
 
