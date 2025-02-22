@@ -54,7 +54,7 @@ function investorText(name, status) {
     }
 }
 
-function MPPortraitContainer({ mpData, sheetData, disclosures }) {
+function MPPPortraitContainer({ mpData, sheetData, disclosures }) {
     const groupedDisclosures = disclosures.reduce((acc, disclosure) => {
         const { category, content } = disclosure;
         if (!acc[category]) {
@@ -66,7 +66,7 @@ function MPPortraitContainer({ mpData, sheetData, disclosures }) {
 
     return React.createElement('div', { className: 'max'}, 
         React.createElement('div', { className: 'centered'}, 
-            React.createElement(MPPortrait, { mpData }),
+            React.createElement(MPPPortrait, { mpData }),
         ),
         React.createElement('div', { className: 'centered'}, 
             React.createElement('ul', { className: 'ul'},
@@ -94,11 +94,11 @@ function MPPortraitContainer({ mpData, sheetData, disclosures }) {
     )
 }
 
-function MPPortrait({ mpData }) {
+function MPPPortrait({ mpData }) {
     return React.createElement('div', { className: 'mp-container-thin' }, 
         React.createElement('div', { className: 'flex' }, 
             React.createElement('div', { className: 'img-container' }, 
-                React.createElement('img', { className: 'mp-img', src: `/images/${mpData.image_name}` })
+                React.createElement('img', { className: 'mp-img', src: `/images/mp_images/${mpData.image_name}` })
             ),
             React.createElement('div', { className: 'txt-container' }, 
                 React.createElement('div', { className: 'top-tile' }, 
@@ -125,7 +125,7 @@ fetch(`/api/mp-data?name=${mpname}`)
     .then(data => {
         // Render the MPList component
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(React.createElement(MPPortraitContainer, { mpData: data.mp[0], sheetData: data.sheet_data, disclosures: data.disclosures }));
+        root.render(React.createElement(MPPPortraitContainer, { mpData: data.mp[0], sheetData: data.sheet_data, disclosures: data.disclosures }));
     })
     .catch(error => {
         console.error('Error:', error);

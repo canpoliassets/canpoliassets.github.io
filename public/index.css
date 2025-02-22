@@ -108,6 +108,9 @@ a.invis{
 .conservative {
     border-color:#002395;
 }
+.progressive-conservative {
+    border-color:#002395;
+}
 
 .independent {
     border-color: silver;
@@ -116,8 +119,15 @@ a.invis{
 .liberal {
     border-color:#D71920;
 }
+.ontario-liberal {
+    border-color:#D71920;
+}
 
 .ndp {
+    border-color:#FF5800;
+}
+
+.new-democratic {
     border-color:#FF5800;
 }
 

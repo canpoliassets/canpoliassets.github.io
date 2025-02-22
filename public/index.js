@@ -1,9 +1,9 @@
-function MPPortrait({ mpData }) {
+function MPPPortrait({ mpData }) {
     return React.createElement('div', { className: 'mp-list' }, 
     React.createElement('a', { className: 'mp-container', href: `mp/${mpData.name.replaceAll(' ','_').toLowerCase()}_${mpData.province.toLowerCase()}`},
         React.createElement('div', { className: 'flex' }, 
             React.createElement('div', { className: 'img-container' }, 
-                React.createElement('img', { className: 'mp-img', src: `/images/${mpData.image_name}` })
+                React.createElement('img', { className: 'mp-img', src: `/images/mp_images/${mpData.image_name}` })
             ),
             React.createElement('div', { className: 'txt-container' }, 
                 React.createElement('div', { className: 'top-tile' }, 
@@ -21,7 +21,7 @@ function MPPortrait({ mpData }) {
 }
 
 // Create a container component to manage the data fetching and rendering
-function MPList() {
+function MPPList() {
     const [mps, setMps] = React.useState([]);
     const [error, setError] = React.useState(null);
 
@@ -105,7 +105,7 @@ function MPList() {
         ),
         React.createElement('div', { className: 'mp-grid-container'},
             filteredMps.map(mp => 
-                React.createElement(MPPortrait, { key: mp.name, mpData: mp })
+                React.createElement(MPPPortrait, { key: mp.name, mpData: mp })
             )
         )
     );
@@ -122,4 +122,4 @@ document.addEventListener('DOMContentLoaded', () => {
   
 // Render the MPList component
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(React.createElement(MPList));
+root.render(React.createElement(MPPList));
