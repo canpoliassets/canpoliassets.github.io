@@ -1,0 +1,11 @@
+extends _base
+
+append head
+  include _react-scripts
+  script(type="module" src="index.js")
+
+block main
+  .title
+    h1=siteTitle
+    p All data sourced from the #[a(href=prciec.href)=prciec.label]
+  #root
