@@ -17,9 +17,12 @@ const path = require('path');
 
 app.use(express.static(path.join(__dirname, 'public'), {
     setHeaders: (res, path) => {
-      if (path.endsWith('.js')) {
-        res.setHeader('Content-Type', 'text/javascript');
-      }
+        if (path.endsWith('.js')) {
+          res.setHeader('Content-Type', 'text/javascript');
+        }
+        if (path.endsWith('.json')) {
+          res.setHeader('Content-Type', 'application/json');
+        }
     }
   }));
 
