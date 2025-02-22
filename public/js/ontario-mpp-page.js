@@ -30,6 +30,13 @@ function investorText(name, disclosures) {
             }
         }
     }
+    for (let i = 0; i < disclosures.length; ++i) {
+        if (disclosures[i].category == 'Income') {
+            if (disclosures[i].content.includes('Investment')) {
+                return `${name} holds significant investments.`;
+            }
+        }
+    }
     return `${name} is not known to hold significant investments.`;
 }
 
