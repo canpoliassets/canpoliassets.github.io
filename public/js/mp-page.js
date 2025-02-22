@@ -5,7 +5,7 @@ function homeOwnerText(name, status) {
         return `${name} is a Home Owner.`
     }
     if (status == 'N') {
-        return `${name} is not a Home Owner.`
+        return `${name} is not known to be a Home Owner.`
     }
     if (status == 'UNDISCLOSED') {
         return `${name} has not disclosed their Home Ownership status.`
@@ -23,7 +23,7 @@ function landlordText(name, status) {
         return `${name} is a Landlord.`
     }
     if (status == 'N') {
-        return `${name} is not a Landlord.`
+        return `${name} is not known to be a Landlord.`
     }
     if (status == 'UNDISCLOSED') {
         return `${name} has not disclosed their Landlord status.`
@@ -41,7 +41,7 @@ function investorText(name, status) {
         return `${name} holds significant investments.`
     }
     if (status == 'N') {
-        return `${name} does not hold any significant investments.`
+        return `${name} is not known to hold any significant investments.`
     }
     if (status == 'UNDISCLOSED') {
         return `${name} has not disclosed their investment status.`
@@ -98,7 +98,7 @@ function MPPortrait({ mpData }) {
     return React.createElement('div', { className: 'mp-container-thin' }, 
         React.createElement('div', { className: 'flex' }, 
             React.createElement('div', { className: 'img-container' }, 
-                React.createElement('img', { className: 'mp-img', src: `/images/${mpData.image_name}` })
+                React.createElement('img', { className: 'mp-img', src: `/images/mp_images/${mpData.image_name}` })
             ),
             React.createElement('div', { className: 'txt-container' }, 
                 React.createElement('div', { className: 'top-tile' }, 

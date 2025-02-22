@@ -1,0 +1,27 @@
+@layer reset, base, components, page;
+
+@layer reset {
+    *, ::before, ::after {
+        box-sizing: border-box;
+    }
+}
+
+@layer base {
+    header {
+        text-align: center;
+        margin-block-end: 3rem;
+    }
+
+    header nav {
+        display: inline-flex;
+        column-gap: 1rem;
+    }
+
+    header nav a[aria-current="page"] {
+        text-decoration: none;
+    }
+
+    footer {
+        margin-block-start: 3rem;
+    }
+}

@@ -1,0 +1,28 @@
+@layer page {
+    body {
+        font-family: system-ui, sans-serif;
+        font-feature-settings: "ss06";
+    }
+
+    main {
+        line-height: 1.6;
+    }
+
+    section {
+        margin: 0 auto;
+        max-inline-size: 44rem;
+    }
+
+    section :is(h1, h2) {
+        text-align: center;
+    }
+
+    .terminology dt {
+        font-weight: 700;
+        font-size: 1.125rem;
+    }
+
+    .terminology dd + dt {
+        margin-block-start: 1em;
+    }
+}

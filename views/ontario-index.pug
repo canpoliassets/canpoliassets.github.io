@@ -1,0 +1,11 @@
+extends _base
+
+append head
+  include _react-scripts
+  script(type="module" src="js/ontario-index.js")
+
+block main
+  .title
+    h1=ontarioSiteTitle
+    p All data sourced from the #[a(href=pds.href)=pds.label]
+  #root
