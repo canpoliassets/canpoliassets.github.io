@@ -1,3 +1,6 @@
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+
 let mpname = window.location.pathname.split('/')[2];
 
 function homeOwnerText(name, status) {
@@ -124,8 +127,10 @@ fetch(`/api/mp-data?name=${mpname}`)
     })
     .then(data => {
         // Render the MPList component
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(React.createElement(MPPortraitContainer, { mpData: data.mp[0], sheetData: data.sheet_data, disclosures: data.disclosures }));
+        ReactDOM.render(
+            React.createElement(MPPortraitContainer, { mpData: data.mp[0], sheetData: data.sheet_data, disclosures: data.disclosures }),
+            document.getElementById('root'),
+        );
     })
     .catch(error => {
         console.error('Error:', error);
