@@ -28,9 +28,10 @@ function investorText(name, disclosures) {
             if (disclosures[i].content.includes('securities')) {
                 return `${name} holds significant investments.`;
             }
+            if (disclosures[i].content.includes('Shares')) {
+                return `${name} holds significant investments.`;
+            }
         }
-    }
-    for (let i = 0; i < disclosures.length; ++i) {
         if (disclosures[i].category == 'Income') {
             if (disclosures[i].content.includes('Investment')) {
                 return `${name} holds significant investments.`;
