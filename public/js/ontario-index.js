@@ -3,7 +3,7 @@ function MPPPortrait({ mpData: mppData }) {
     React.createElement('a', { className: 'mp-container', href: `mpp/${mppData.name.replaceAll(' ','_').toLowerCase()}`},
         React.createElement('div', { className: 'flex' }, 
             React.createElement('div', { className: 'img-container' }, 
-                React.createElement('img', { className: 'mp-img', src: `/images/mpp_images/${mppData.image_name}` })
+                React.createElement('img', { className: 'mp-img', src: `/images/mpp_images/${mppData.image_name}`, loading: 'lazy' })
             ),
             React.createElement('div', { className: 'txt-container' }, 
                 React.createElement('div', { className: 'top-tile' }, 
