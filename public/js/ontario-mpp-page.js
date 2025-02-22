@@ -8,7 +8,7 @@ function homeOwnerText(name, disclosures) {
             }
         }
     }
-    return `${name} is not a Home Owner.`;
+    return `${name} is not known to be a Home Owner.`;
 }
 
 function landlordText(name, disclosures) {
@@ -19,7 +19,7 @@ function landlordText(name, disclosures) {
             }
         }
     }
-    return `${name} is not a Landlord.`;
+    return `${name} is not known to be a Landlord.`;
 }
 
 function investorText(name, disclosures) {
@@ -30,7 +30,7 @@ function investorText(name, disclosures) {
             }
         }
     }
-    return `${name} does not hold significant investments.`;
+    return `${name} is not known to hold significant investments.`;
 }
 
 function MPPPortraitContainer({ mppData, disclosures }) {
