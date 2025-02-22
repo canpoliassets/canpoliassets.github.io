@@ -1,3 +1,60 @@
+const { I18nextProvider, useTranslation } = ReactI18next;
+const i18n = i18next.createInstance();
+
+i18n
+    .use(i18nextBrowserLanguageDetector)
+    .use(i18nextHttpBackend)
+    .init({
+        backend: {
+            loadPath: '/locales/{{lng}}.json'
+        },
+        load: "languageOnly",
+        supportedLngs: ['en', 'fr'],
+        fallbackLng: 'en',
+        preload: ['en'],
+        detection: {
+            order: ['localStorage', 'sessionStorage', 'cookie', 'navigator'],
+            lookupLocalStorage: 'i18nextLng',
+            convertDetectedLanguage: (lng) => lng.substring(0, 2)
+        }
+    });
+
+
+// FIXME: add to scripts
+// <script src="https://unpkg.com/i18next@latest/dist/umd/i18next.js"></script>
+// <script src="https://unpkg.com/react-i18next@latest/dist/umd/react-i18next.js"></script>
+// <script src="https://unpkg.com/i18next-browser-languagedetector@latest/dist/umd/i18nextBrowserLanguageDetector.js"></script>
+// <script src="https://cdn.jsdelivr.net/npm/i18next-http-backend@1.3.1/i18nextHttpBackend.min.js"></script>
+
+// FIXME: page dependent
+document.title = i18n.t('Is My MP a Landlord? | MP Detail');
+
+const LanguageSwitcher = () => {
+    const { i18n } = useTranslation();
+
+    const changeLanguage = (lng) => {
+        i18n.changeLanguage(lng);
+        localStorage.setItem('i18nextLng', lng);
+    };
+
+    return React.createElement('div', null,
+        React.createElement('a', { href: '#', onClick: (e) => e.preventDefault() || changeLanguage("en"), style: { fontWeight: i18n.language === "en" ? "bold" : "normal" } }, 'En'),
+        React.createElement('span', {}, '|'),
+        React.createElement('a', { href: '#', onClick: (e) => e.preventDefault() || changeLanguage("fr"), style: { fontWeight: i18n.language === "fr" ? "bold" : "normal" } }, 'Fr')
+    );
+};
+
+const Header = () => {
+    const { t } = useTranslation();
+    return React.createElement('div', { className: 'header' },
+        React.createElement('h1', null, t('Is My MP a Landlord?')),
+        React.createElement('span', null, t('All data sourced from the ')),
+        React.createElement('a', { href: 'https://prciec-rpccie.parl.gc.ca/EN/PublicRegistries/Pages/PublicRegistry.aspx', target: '_blank' }, t('Office of Conflict of Interest and Ethics Commissioner')),
+        React.createElement('h6', null, t('See our '), React.createElement('a', { href: '/about' }, t('About Us')))
+    );
+}
+
+
 let mpname = window.location.pathname.split('/')[2];
 
 function homeOwnerText(name, status) {
@@ -64,11 +121,13 @@ function MPPortraitContainer({ mpData, sheetData, disclosures }) {
         return acc;
     }, {});
 
-    return React.createElement('div', { className: 'max'}, 
-        React.createElement('div', { className: 'centered'}, 
+    return React.createElement('div', { className: 'max'},
+        React.createElement(LanguageSwitcher),
+        React.createElement('header', {className: "title"}, React.createElement(Header)),
+        React.createElement('div', { className: 'centered'},
             React.createElement(MPPortrait, { mpData }),
         ),
-        React.createElement('div', { className: 'centered'}, 
+        React.createElement('div', { className: 'centered'},
             React.createElement('ul', { className: 'ul'},
                 React.createElement('li', { className: 'homeowner'}, homeOwnerText(mpData.name, sheetData?.home_owner)),
                 React.createElement('li', { className: 'landlord'}, landlordText(mpData.name, sheetData?.landlord)),
@@ -80,9 +139,9 @@ function MPPortraitContainer({ mpData, sheetData, disclosures }) {
                 Object.entries(groupedDisclosures).map(([category, contents]) =>
                     React.createElement('div', { key: category },
                         React.createElement('p', { className: 'category' }, category),
-                            contents.map(content => 
+                            contents.map(content =>
                                 React.createElement('div', { key: `${category}-disclosure` },
-                                    content.split('\n').map((line, index) => 
+                                    content.split('\n').map((line, index) =>
                                         React.createElement('p', { key: `${category}-disclosure-${index}` }, line)
                                     )
                                 )
@@ -95,17 +154,17 @@ function MPPortraitContainer({ mpData, sheetData, disclosures }) {
 }
 
 function MPPortrait({ mpData }) {
-    return React.createElement('div', { className: 'mp-container-thin' }, 
-        React.createElement('div', { className: 'flex' }, 
-            React.createElement('div', { className: 'img-container' }, 
+    return React.createElement('div', { className: 'mp-container-thin' },
+        React.createElement('div', { className: 'flex' },
+            React.createElement('div', { className: 'img-container' },
                 React.createElement('img', { className: 'mp-img', src: `/images/mp_images/${mpData.image_name}` })
             ),
-            React.createElement('div', { className: 'txt-container' }, 
-                React.createElement('div', { className: 'top-tile' }, 
+            React.createElement('div', { className: 'txt-container' },
+                React.createElement('div', { className: 'top-tile' },
                     React.createElement('p', { className: 'mp-name' }, mpData.name),
                     React.createElement('p', { className: `mp-party ${mpData.party.toLowerCase().replace(" ", "-")}` }, mpData.party)
                 ),
-                React.createElement('div', { className: 'bottom-tile' }, 
+                React.createElement('div', { className: 'bottom-tile' },
                     React.createElement('p', { className: 'mp-constituency' }, mpData.constituency),
                     React.createElement('p', { className: 'mp-province' }, mpData.province),
                 )
@@ -125,7 +184,7 @@ fetch(`/api/mp-data?name=${mpname}`)
     .then(data => {
         // Render the MPList component
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(React.createElement(MPPortraitContainer, { mpData: data.mp[0], sheetData: data.sheet_data, disclosures: data.disclosures }));
+        root.render(React.createElement(I18nextProvider, { i18n }, React.createElement(MPPortraitContainer, { mpData: data.mp[0], sheetData: data.sheet_data, disclosures: data.disclosures })));
     })
     .catch(error => {
         console.error('Error:', error);
