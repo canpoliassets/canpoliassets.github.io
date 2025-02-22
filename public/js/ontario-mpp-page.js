@@ -14,7 +14,7 @@ function homeOwnerText(name, disclosures) {
 function landlordText(name, disclosures) {
     for (let i = 0; i < disclosures.length; ++i) {
         if (disclosures[i].category == 'Income') {
-            if (disclosures[i].content.includes('Rental Income')) {
+            if (disclosures[i].content.includes('Rental')) {
                 return `${name} is a Landlord.`;
             }
         }
