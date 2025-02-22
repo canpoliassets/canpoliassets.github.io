@@ -15,15 +15,9 @@
   "dependencies": {
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "i18next": "^24.2.2",
-    "i18next-browser-languagedetector": "^8.0.4",
-    "i18next-fs-backend": "^2.6.0",
-    "i18next-http-middleware": "^3.7.1",
-    "i18next-xhr-backend": "^3.2.2",
     "mongodb": "^6.13.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-i18next": "^15.4.1"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@flydotio/dockerfile": "^0.7.4"
