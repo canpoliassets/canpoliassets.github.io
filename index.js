@@ -14,6 +14,36 @@ const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
 const path = require('path');
+const pug = require('pug');
+
+app.set('view engine', 'pug');
+
+app.locals.siteTitle = 'Is My MP a Landlord?';
+app.locals.contactEmail = 'mplandlordcheck [ at ] protonmail [ dot ] com';
+app.locals.prciec = {
+    href: 'https://prciec-rpccie.parl.gc.ca/EN/PublicRegistries/Pages/PublicRegistry.aspx',
+    label: 'Office of Conflict of Interest and Ethics Commissioner',
+};
+
+app.use((req, res, next) => {
+    res.locals.currentPath = req.path;
+    // Set the locale here
+    res.locals.lang = 'en';
+    next();
+});
+
+app.get('/', (_req, res) => {
+    res.render('index');
+});
+
+app.get('/about', (_req, res) => {
+    res.render('about', { title: 'About Us' });
+});
+
+app.get('/mp/:name', (_req, res) => {
+    // TODO: perhaps get the name from the database for the title.
+    res.render('mp', { title: 'Member Details' });
+});
 
 app.use(express.static(path.join(__dirname, 'public'), {
     setHeaders: (res, path) => {
@@ -46,14 +76,6 @@ app.get('/api/mp-data', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Error fetching items' });
     }
-});
-
-app.get('/mp/:name', (_req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'pages/mp-page.html'));
-});
-
-app.get('/about', (_req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'pages/about.html'));
 });
 
 app.get('/robots.txt', function (_req, res) {
