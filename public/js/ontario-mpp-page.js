@@ -25,7 +25,7 @@ function landlordText(name, disclosures) {
 function investorText(name, disclosures) {
     for (let i = 0; i < disclosures.length; ++i) {
         if (disclosures[i].category == 'Assets') {
-            if (disclosures[i].content.includes('Investment')) {
+            if (disclosures[i].content.includes('securities')) {
                 return `${name} holds significant investments.`;
             }
         }
