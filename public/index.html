@@ -34,10 +34,11 @@ i18n
         detection: {
             order: ['localStorage', 'sessionStorage', 'cookie', 'navigator'],
             lookupLocalStorage: 'i18nextLng',
-            // caches: ['localStorage', 'cookie']
+            convertDetectedLanguage: (lng) => lng.substring(0, 2)
         }
     });
 
   document.title = i18n.t('Is My MP a Landlord?');
 </script>
+
 <script type="module" src="index.js"></script>
