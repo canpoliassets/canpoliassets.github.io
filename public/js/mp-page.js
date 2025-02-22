@@ -54,7 +54,7 @@ function investorText(name, status) {
     }
 }
 
-function MPPPortraitContainer({ mpData, sheetData, disclosures }) {
+function MPPortraitContainer({ mpData, sheetData, disclosures }) {
     const groupedDisclosures = disclosures.reduce((acc, disclosure) => {
         const { category, content } = disclosure;
         if (!acc[category]) {
@@ -66,7 +66,7 @@ function MPPPortraitContainer({ mpData, sheetData, disclosures }) {
 
     return React.createElement('div', { className: 'max'}, 
         React.createElement('div', { className: 'centered'}, 
-            React.createElement(MPPPortrait, { mpData }),
+            React.createElement(MPPortrait, { mpData }),
         ),
         React.createElement('div', { className: 'centered'}, 
             React.createElement('ul', { className: 'ul'},
@@ -94,7 +94,7 @@ function MPPPortraitContainer({ mpData, sheetData, disclosures }) {
     )
 }
 
-function MPPPortrait({ mpData }) {
+function MPPortrait({ mpData }) {
     return React.createElement('div', { className: 'mp-container-thin' }, 
         React.createElement('div', { className: 'flex' }, 
             React.createElement('div', { className: 'img-container' }, 
@@ -125,7 +125,7 @@ fetch(`/api/mp-data?name=${mpname}`)
     .then(data => {
         // Render the MPList component
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(React.createElement(MPPPortraitContainer, { mpData: data.mp[0], sheetData: data.sheet_data, disclosures: data.disclosures }));
+        root.render(React.createElement(MPPortraitContainer, { mpData: data.mp[0], sheetData: data.sheet_data, disclosures: data.disclosures }));
     })
     .catch(error => {
         console.error('Error:', error);
