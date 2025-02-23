@@ -19,14 +19,9 @@ i18n
         }
     });
 
-
-// FIXME: add to scripts
-// <script src="https://unpkg.com/i18next@latest/dist/umd/i18next.js"></script>
-// <script src="https://unpkg.com/react-i18next@latest/dist/umd/react-i18next.js"></script>
-// <script src="https://unpkg.com/i18next-browser-languagedetector@latest/dist/umd/i18nextBrowserLanguageDetector.js"></script>
-// <script src="https://cdn.jsdelivr.net/npm/i18next-http-backend@1.3.1/i18nextHttpBackend.min.js"></script>
-
-// FIXME: page dependent
+// FIXME: page dependent -- but probably better not to set imperatively like
+// this, and i think i18next requires a callback before translations are ready
+// so you can't call this synchronously anyway?
 document.title = i18n.t('Is My MP a Landlord? | MP Detail');
 
 const LanguageSwitcher = () => {
