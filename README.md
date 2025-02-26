@@ -6,21 +6,17 @@ This is the source for `ismympalandlord.ca` inspired originally by Isaac Peltz a
 
 - Node.js / Express
 - MongoDB - (Cheap, malleable, handles french characters nicely)
-- React (done poorly)
+- React (Needs work)
 
 # FAQ
 
-## Why is the frontend/backend/design so bad/poor/messy?
+## Why is the [thing] so [criticism]?
 
 This was put together in a hurry to quickly prototype and share something publicly. If something is bad, it's likely because it was done quickly. I encourage you to make it better.
 
 ## How is this hosted?
 
 fly.io
-
-## Who owns the domain?
-
-OmegaSheep
 
 # Dev Setup
 
@@ -58,6 +54,9 @@ npm start
     name: String,     # name of mp
     category: String, # eg. Assets, Sponsored Travel
     content: String,  # full content from ethics portal
+    category_fr: String, # eg. Passifs
+    content_fr: String, # en francais
+    
 }
 ```
 
@@ -71,5 +70,26 @@ Ideally we should derive this from the ethics portal disclosures directly. . .
     homeowner: String, # value not always boolean
     landlord: String,  # value not always boolean
     investor: String,  # value not always boolean
+}
+```
+
+`ontario_mpps` - Members of Provincial Parliament for Ontario
+
+```
+{
+    name: String,
+    constituency: String,
+    party: String,
+    image_name: String
+}
+```
+
+`ontario_disclosures` - What MPPs have declared. No official French language translations available.
+
+```
+{
+    name: String,     # name of mp
+    category: String, # eg. Assets, Sponsored Travel
+    content: String,  # full content from ethics portal
 }
 ```
