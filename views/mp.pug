@@ -1,10 +1,65 @@
 extends _base
 
-append head
-  include _react-scripts
-  script(type="module" src="/js/mp-page.js")
-
 block main
   .title
-    h1 Is My MP a Landlord?
-  #root
+    h1=siteTitle
+  .max
+    .centered
+      .mp-container-thin
+        .flex
+          .img-container
+            img.mp-img(src=`/images/mp_images/${image_name}` alt="")
+          .txt-container
+            .top-tile
+              p.mp-name=name
+              p(class=`mp-party ${party.toLowerCase().replace(" ", "-")}`)=party
+            .bottom-tile
+              p.mp-constituency=constituency
+              p.mp-province=province
+    .centered
+      ul.ul
+        li.homeowner
+          case homeownerStatus
+            when "Y"
+              | #{name} is a Home Owner
+            when "N"
+              | #{name} is not known to be a Home Owner
+            when "UNDISCLOSED"
+              | #{name} has not disclosed their Home Ownership status.
+            when "NOT SUBMITTED"
+              | #{name} has not submitted their ethics disclosure regarding Home Ownership.
+            default
+              | It is not presently known if #{name} is a Home Owner.
+        li.landlord
+          case landlordStatus
+            when "Y"
+              | #{name} is a Landlord.
+            when "N"
+              | #{name} is not known to be a Landlord.
+            when "UNDISCLOSED"
+              | #{name} has not disclosed their Landlord status.
+            when "NOT SUBMITTED"
+              | #{name} has not submitted their ethics disclosure regarding Property Ownership.
+            default
+              | It is not presently known if #{name} is a Landlord.
+        li.investor
+          case investorStatus
+            when "Y"
+              | #{name} holds significant investments.
+            when "N"
+              | #{name} is not known to hold any significant investments.
+            when "UNDISCLOSED"
+              | #{name} has not disclosed their investment status.
+            when "NOT SUBMITTED"
+              | #{name} has not submitted their ethics disclosure regarding investment status.
+            default
+              | It is not presently known if #{name} holds any investments.
+    .centered
+      .disclosure-container
+        each contents, category in groupedDisclosures
+          div
+            p.category=category
+            div
+              each content in contents
+                each line in content.split("\n")
+                  p=line

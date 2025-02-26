@@ -13,6 +13,8 @@ const DISCLOSURES = database.collection('disclosures'); // Disclosures sourced f
 const ONTARIO_MPPS = database.collection('ontario_mpps');
 const ONTARIO_DISCLOSURES = database.collection('ontario_disclosures');
 
+const COLLATION = { collation : {locale: "fr_CA", strength: 2 }}
+
 const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
@@ -53,9 +55,34 @@ app.get('/about', (_req, res) => {
     res.render('about', { title: 'About Us' });
 });
 
-app.get('/mp/:name', (_req, res) => {
-    // TODO: perhaps get the name from the database for the title.
-    res.render('mp', { title: 'Member Details' });
+app.get('/mp/:name', async (req, res) => {
+    const { name } = req.params;
+
+    name_split = name.split("_");
+    province = name_split.pop(0);
+    final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
+
+    let mp = await MPS.findOne({ name: final_name_sanitized, province: province }, COLLATION);
+    let { homeowner, landlord, investor } = await SHEET_DATA.findOne({ name: final_name_sanitized }, COLLATION);
+    let disclosures = await DISCLOSURES.find({ name: final_name_sanitized }, COLLATION).sort({ category: 1 }).toArray();
+
+    const groupedDisclosures = disclosures.reduce((acc, disclosure) => {
+        const { category, content } = disclosure;
+        if (!acc[category]) {
+        acc[category] = [];
+        }
+        acc[category].push(content);
+        return acc;
+    }, {});
+
+    res.render('mp', {
+        title: `${mp.name} | Member Details`,
+        ...mp,
+        homeowner,
+        landlord,
+        investor,
+        groupedDisclosures,
+    });
 });
 
 app.get('/mpp/:name', (_req, res) => {
@@ -63,13 +90,7 @@ app.get('/mpp/:name', (_req, res) => {
     res.render('ontario-mpp', { title: 'Member Details' });
 });
 
-app.use(express.static(path.join(__dirname, 'public'), {
-    setHeaders: (res, path) => {
-      if (path.endsWith('.js')) {
-        res.setHeader('Content-Type', 'text/javascript');
-      }
-    }
-  }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/api/mps-data', async (_req, res) => {
     try {
@@ -84,22 +105,6 @@ app.get('/api/mpps-data', async (_req, res) => {
     try {
         let allMPPS = await ONTARIO_MPPS.find({ }).sort({ name: 1 }).toArray();
         res.json({ mpps: allMPPS });
-    } catch (error) {
-        res.status(500).json({ error: 'Error fetching items' });
-    }
-});
-
-app.get('/api/mp-data', async (req, res) => {
-    try {
-        let name = req.query.name;
-        name_split = name.split("_");
-        province = name_split.pop(0);
-        final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
-
-        let specificMp = await MPS.find({ name: final_name_sanitized, province: province }, { collation : {locale: "fr_CA", strength: 2 }}).sort({ name: 1 }).toArray();
-        let mpSheetData = await SHEET_DATA.findOne({ name: final_name_sanitized }, { collation : {locale: "fr_CA", strength: 2 }});
-        let disclosures = await DISCLOSURES.find({ name: final_name_sanitized }, { collation : {locale: "fr_CA", strength: 2 }}).sort({ category: 1 }).toArray();
-        res.json({ mp: specificMp, sheet_data: mpSheetData, disclosures: disclosures });
     } catch (error) {
         res.status(500).json({ error: 'Error fetching items' });
     }
