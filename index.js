@@ -66,28 +66,33 @@ app.get('/mp/:name', async (req, res) => {
     let { homeowner, landlord, investor } = await SHEET_DATA.findOne({ name: final_name_sanitized }, COLLATION);
     let disclosures = await DISCLOSURES.find({ name: final_name_sanitized }, COLLATION).sort({ category: 1 }).toArray();
 
-    const groupedDisclosures = disclosures.reduce((acc, disclosure) => {
-        const { category, content } = disclosure;
-        if (!acc[category]) {
-        acc[category] = [];
-        }
-        acc[category].push(content);
-        return acc;
-    }, {});
-
     res.render('mp', {
         title: `${mp.name} | Member Details`,
         ...mp,
         homeowner,
         landlord,
         investor,
-        groupedDisclosures,
+        groupedDisclosures: groupDisclosures(disclosures),
     });
 });
 
-app.get('/mpp/:name', (_req, res) => {
-    // TODO: perhaps get the name from the database for the title.
-    res.render('ontario-mpp', { title: 'Member Details' });
+app.get('/mpp/:name', async (req, res) => {
+    const { name } = req.params;
+
+    name_split = name.split("_");
+    final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
+
+    let mpp = await ONTARIO_MPPS.findOne({ name: final_name_sanitized }, COLLATION);
+    let disclosures = await ONTARIO_DISCLOSURES.find({ name: final_name_sanitized }, COLLATION).sort({ category: 1 }).toArray();
+
+    res.render('ontario-mpp', {
+        title: 'Member Details',
+        ...mpp,
+        groupedDisclosures: groupDisclosures(disclosures),
+        homeowner: homeOwnerText(mpp.name, disclosures),
+        landlord: landlordText(mpp.name, disclosures),
+        investor: investorText(mpp.name, disclosures),
+    });
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -110,20 +115,6 @@ app.get('/api/mpps-data', async (_req, res) => {
     }
 });
 
-app.get('/api/mpp-data', async (req, res) => {
-    try {
-        let name = req.query.name;
-        name_split = name.split("_");
-        final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
-
-        let specificMpp = await ONTARIO_MPPS.find({ name: final_name_sanitized }, { collation : {locale: "fr_CA", strength: 2 }}).sort({ name: 1 }).toArray();
-        let disclosures = await ONTARIO_DISCLOSURES.find({ name: final_name_sanitized }, { collation : {locale: "fr_CA", strength: 2 }}).sort({ category: 1 }).toArray();
-        res.json({ mpp: specificMpp, disclosures: disclosures });
-    } catch (error) {
-        res.status(500).json({ error: 'Error fetching items' });
-    }
-});
-
 app.get('/robots.txt', function (_req, res) {
     res.type('text/plain');
     // res.send("User-agent: *\nDisallow: /");
@@ -132,3 +123,64 @@ app.get('/robots.txt', function (_req, res) {
 
 const PORT = process.env.PORT || 3000;
 http.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+
+
+/* TODO: maybe use `Object.groupBy()`? Not quite the same. */
+function groupDisclosures(disclosures) {
+    return disclosures.reduce((acc, disclosure) => {
+        const { category, content } = disclosure;
+        if (!acc[category]) {
+        acc[category] = [];
+        }
+        acc[category].push(content);
+        return acc;
+    }, {});
+}
+
+
+
+// These are used for the Ontario MPP details pages.
+// TODO: find a better home for this.
+
+function homeOwnerText(name, disclosures) {
+    for (let i = 0; i < disclosures.length; ++i) {
+        if (disclosures[i].category == 'Liabilities') {
+            if (disclosures[i].content.includes('Mortgage')) {
+                return `${name} is a Home Owner.`;
+            }
+        }
+    }
+    return `${name} is not known to be a Home Owner.`;
+}
+
+function landlordText(name, disclosures) {
+    for (let i = 0; i < disclosures.length; ++i) {
+        if (disclosures[i].category == 'Income') {
+            if (disclosures[i].content.includes('Rental')) {
+                return `${name} is a Landlord.`;
+            }
+        }
+    }
+    return `${name} is not known to be a Landlord.`;
+}
+
+function investorText(name, disclosures) {
+    for (let i = 0; i < disclosures.length; ++i) {
+        if (disclosures[i].category == 'Assets') {
+            if (disclosures[i].content.includes('securities')) {
+                return `${name} holds significant investments.`;
+            }
+            if (disclosures[i].content.includes('Shares')) {
+                return `${name} holds significant investments.`;
+            }
+        }
+        if (disclosures[i].category == 'Income') {
+            if (disclosures[i].content.includes('Investment')) {
+                return `${name} holds significant investments.`;
+            }
+        }
+    }
+    return `${name} is not known to hold significant investments.`;
+}
+
