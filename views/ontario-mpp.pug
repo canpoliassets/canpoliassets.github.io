@@ -1,10 +1,32 @@
 extends _base
 
-append head
-  include _react-scripts
-  script(type="module" src="/js/ontario-mpp-page.js")
-
 block main
   .title
     h1=ontarioSiteTitle
-  #root
+  .max
+    .centered
+      .mp-container-thin
+        .flex
+          .img-container
+            img.mp-img(src=`/images/mpp_images/${image_name}` alt="")
+          .txt-container
+            .top-tile
+              p.mp-name=name
+              p(class=`mp-party ${party.toLowerCase().replace(" ", "-")}`)=party
+            .bottom-tile
+              p.mp-constituency=constituency
+              p.mp-province=province
+    .centered
+      ul.ul
+        li.homeowner=homeowner
+        li.landlord=landlord
+        li.investor=investor
+    .centered
+      .disclosure-container
+        each contents, category in groupedDisclosures
+          div
+            p.category=category
+            div
+              each content in contents
+                each line in content.split("\n")
+                  p=line
