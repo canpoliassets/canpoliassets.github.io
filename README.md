@@ -67,7 +67,7 @@ Ideally we should derive this from the ethics portal disclosures directly. . .
 ```
 {
     name: String,      # name of mp
-    homeowner: String, # value not always boolean
+    home_owner: String, # value not always boolean
     landlord: String,  # value not always boolean
     investor: String,  # value not always boolean
 }

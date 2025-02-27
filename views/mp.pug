@@ -19,7 +19,7 @@ block main
     .centered
       ul.ul
         li.homeowner
-          case homeownerStatus
+          case home_owner
             when "Y"
               | #{name} is a Home Owner
             when "N"
@@ -31,7 +31,7 @@ block main
             default
               | It is not presently known if #{name} is a Home Owner.
         li.landlord
-          case landlordStatus
+          case landlord
             when "Y"
               | #{name} is a Landlord.
             when "N"
@@ -43,7 +43,7 @@ block main
             default
               | It is not presently known if #{name} is a Landlord.
         li.investor
-          case investorStatus
+          case investor
             when "Y"
               | #{name} holds significant investments.
             when "N"
