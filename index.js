@@ -176,6 +176,9 @@ function investorText(name, disclosures) {
             if (disclosures[i].content.includes('Shares')) {
                 return `${name} holds significant investments.`;
             }
+            if (disclosures[i].content.includes('Investment and registered accounts')) {
+                return `${name} holds significant investments.`;
+            }
         }
         if (disclosures[i].category == 'Income') {
             if (disclosures[i].content.includes('Investment')) {
