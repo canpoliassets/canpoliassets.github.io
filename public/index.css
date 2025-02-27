@@ -28,7 +28,7 @@ a.invis{
     font-family: "Consolas", sans-serif;
 }
 
-.mp-list {
+.mp-list:not([hidden]) {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
 }

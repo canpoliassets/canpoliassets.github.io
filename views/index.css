@@ -1,0 +1,9 @@
+@media (prefers-reduced-motion) {
+    @view-transition {
+        navigation: auto;
+    }
+}
+
+:root {
+    scrollbar-gutter: stable;
+}

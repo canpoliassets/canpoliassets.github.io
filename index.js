@@ -42,8 +42,10 @@ app.use((req, res, next) => {
     next();
 });
 
-app.get('/', (_req, res) => {
-    res.render('index');
+app.get('/', async (_req, res) => {
+    let mps = await MPS.find({ }).sort({ name: 1 }).toArray();
+
+    res.render('index', { mps });
 });
 
 app.get('/ontario', (_req, res) => {
