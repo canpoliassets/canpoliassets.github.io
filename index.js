@@ -65,13 +65,13 @@ app.get('/mp/:name', async (req, res) => {
     final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
 
     let mp = await MPS.findOne({ name: final_name_sanitized, province: province }, COLLATION);
-    let { homeowner, landlord, investor } = await SHEET_DATA.findOne({ name: final_name_sanitized }, COLLATION);
+    let { home_owner, landlord, investor } = await SHEET_DATA.findOne({ name: final_name_sanitized }, COLLATION);
     let disclosures = await DISCLOSURES.find({ name: final_name_sanitized }, COLLATION).sort({ category: 1 }).toArray();
 
     res.render('mp', {
         title: `${mp.name} | Member Details`,
         ...mp,
-        homeowner,
+        home_owner,
         landlord,
         investor,
         groupedDisclosures: groupDisclosures(disclosures),
