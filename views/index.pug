@@ -21,17 +21,19 @@ block main
         select.filter-selector
           each province in ["All", "Ontario", "Quebec", "British Columbia", "Saskatchewan", "Alberta", "Manitoba", "Yukon", "Nova Scotia", "Newfoundland and Labrador", "New Brunswick", "Prince Edward Island", "Nunavut", "Northwest Territories"]
             option(value=province)=province
-      .mp-grid-container
+      ul.mp-cards-grid
         each mp in mps
-          .mp-list(data-province=mp.province data-party=mp.party style=`view-transition-name: ${mp.name.toLowerCase().replaceAll(" ", "_")}`)
-            a.mp-container(href=`mp/${mp.name.toLowerCase().replaceAll(" ", "_")}_${mp.province.toLowerCase()}`)
-              .flex
-                .img-container
-                  img.mp-img(src=`/images/mp_images/${mp.image_name}` alt="" loading="lazy")
-                .txt-container
-                  .top-tile
-                    p.mp-name=mp.name
-                    p(class=`mp-party ${mp.party.toLowerCase().replaceAll(" ", "-")}`)=mp.party
-                  .bottom-tile
-                    p.mp-constituency=mp.constituency
-                    p.mp-province=mp.province
+          - const mpNameSlug = mp.name.toLowerCase().replaceAll(" ", "_");
+          li.mp-card(data-province=mp.province data-party=mp.party style=`view-transition-name: ${mpNameSlug}`)
+            img.mp-portrait(src=`/images/mp_images/${mp.image_name}` alt="" loading="lazy")
+            .mp-card-content
+              h2.mp-card-title=mp.name
+              dl.mp-card-details
+                dt.visually-hidden Party
+                dd=mp.party
+                .mp-constituency-and-province
+                  dt.visually-hidden Constituency
+                  dd=mp.constituency
+                  dt.visually-hidden Province
+                  dd=mp.province
+              a.mp-card-cta(href=`mp/${mpNameSlug}_${mp.province.toLowerCase()}`) Learn more #[span.visually-hidden about #{mp.name}]

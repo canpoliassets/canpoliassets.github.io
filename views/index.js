@@ -5,7 +5,7 @@ filterByProvince.addEventListener("input", filterResults);
 
 function filterResults(mp) {
     document.startViewTransition(() => {
-        for (const mp of document.querySelectorAll(".mp-list")) {
+        for (const mp of document.querySelectorAll(".mp-card")) {
             mp.hidden = 
                 filterByParty.value === "All" && filterByProvince.value === "All"
                     ? false

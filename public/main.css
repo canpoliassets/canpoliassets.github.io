@@ -25,3 +25,101 @@
         margin-block-start: 3rem;
     }
 }
+
+@layer components {
+    .mp-cards-grid {
+        display: grid;
+        list-style: none;
+        padding-inline-start: 0;
+        column-gap: 24px; /* TODO */
+        row-gap: 16px;
+        justify-content: center;
+        grid-template-columns: repeat(auto-fill, minmax(345px, 1fr));
+    }
+
+    .mp-card {
+        grid-template-columns: [portrait-start] max(125px, 35%) [portrait-end content-start] auto [content-end];
+        column-gap: 8px;
+        background-color: #fff;
+        font-family: Courier New, system-ui, sans-serif;
+        position: relative;
+        border-block-start: 10px solid var(--party-color, #c0c0c0);
+        box-shadow: 0 0 15px rgb(0 0 0 / 0.15);
+    }
+
+    .mp-card:not([hidden]) {
+        display: grid;
+    }
+
+    .mp-card:where([data-party="Bloc Québécois"]) { --party-color: #0088ce; }
+    .mp-card:where([data-party="Conservative"]) { --party-color: #002395; }
+    .mp-card:where([data-party="Green"]) { --party-color: #427a26; }
+    .mp-card:where([data-party="Liberal"]) { --party-color: #d71920; }
+    .mp-card:where([data-party="NDP"]) { --party-color: #ff5800; }
+
+    .mp-card-content {
+        display: grid;
+        justify-items: start;
+        row-gap: 8px;
+        padding: 16px;
+        block-size: 100%;
+    }
+
+    .mp-card-title {
+        margin-block: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+    .mp-card-cta {
+        align-self: end;
+        text-underline-offset: 0.3em;
+        font-weight: 700;
+        color: #00e;
+    }
+
+    .mp-card-cta::after {
+        inset: 0;
+        position: absolute;
+        content: "";
+    }
+
+    .mp-card-content :not(.mp-card-cta) {
+        z-index: 1;
+    }
+
+    .mp-card-details {
+        display: grid;
+        justify-items: start;
+        row-gap: 16px;
+        margin-block: 0;
+    }
+
+    .mp-card-details :where(dt, dd) {
+        margin-inline-start: 0;
+    }
+
+    .mp-constituency-and-province {
+        display: grid;
+        row-gap: 4px;
+    }
+
+    .mp-portrait {
+        display: block;
+        inline-size: 100%;
+    }
+}
+
+@layer utilities {
+    .visually-hidden:not(:focus-within, :active) {
+        clip-path: inset(50%);
+        white-space: nowrap;
+        user-select: none;
+        border: 0;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        position: absolute;
+        overflow: hidden;
+    }
+}
