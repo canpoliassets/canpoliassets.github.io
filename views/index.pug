@@ -15,15 +15,15 @@ block main
       .sorting-container
         p.filter-text Select Party
         select.filter-selector
-          each party in ["All", "Conservative", "Liberal", "Independent", "Bloc Québécois", "NDP", "Green Party"]
+          each party in ["All", ...[...new Set(mps.map(mp => mp.party))].sort()]
             option(value=party)=party
         p.filter-text Select Province
         select.filter-selector
-          each province in ["All", "Ontario", "Quebec", "British Columbia", "Saskatchewan", "Alberta", "Manitoba", "Yukon", "Nova Scotia", "Newfoundland and Labrador", "New Brunswick", "Prince Edward Island", "Nunavut", "Northwest Territories"]
+          each province in ["All", ...[...new Set(mps.map(mp => mp.province))].sort()]
             option(value=province)=province
         p.filter-text Select Riding
         select.filter-selector
-          each constituency in ["All", ...mps.map(mp => mp.constituency)]
+          each constituency in ["All", ...mps.map(mp => mp.constituency).sort()]
             option(value=constituency)=constituency
       ul.mp-cards-grid
         each mp in mps
