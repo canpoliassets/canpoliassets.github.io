@@ -43,7 +43,7 @@
         background-color: #fff;
         font-family: Courier New, system-ui, sans-serif;
         position: relative;
-        border-block-start: 10px solid var(--party-color, #c0c0c0);
+        border-block-end: 10px solid var(--party-color, #c0c0c0);
         box-shadow: 0 0 15px rgb(0 0 0 / 0.15);
     }
 
