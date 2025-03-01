@@ -21,10 +21,14 @@ block main
         select.filter-selector
           each province in ["All", "Ontario", "Quebec", "British Columbia", "Saskatchewan", "Alberta", "Manitoba", "Yukon", "Nova Scotia", "Newfoundland and Labrador", "New Brunswick", "Prince Edward Island", "Nunavut", "Northwest Territories"]
             option(value=province)=province
+        p.filter-text Select Riding
+        select.filter-selector
+          each constituency in ["All", ...mps.map(mp => mp.constituency)]
+            option(value=constituency)=constituency
       ul.mp-cards-grid
         each mp in mps
           - const mpNameSlug = mp.name.toLowerCase().replaceAll(" ", "_");
-          li.mp-card(data-province=mp.province data-party=mp.party style=`view-transition-name: ${mpNameSlug}`)
+          li.mp-card(data-province=mp.province data-party=mp.party data-constituency=mp.constituency style=`view-transition-name: ${mpNameSlug}`)
             img.mp-portrait(src=`/images/mp_images/${mp.image_name}` alt="" loading="lazy")
             .mp-card-content
               h2.mp-card-title=mp.name
