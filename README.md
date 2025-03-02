@@ -56,6 +56,16 @@ npm start
 ```
 {
     name: String,     # name of mp
+    category: String, # eg. Passifs, Cadeaux etc
+    content: String,  # full content
+}
+```
+
+`disclosures_fr` - What MPS have declared, but in french (sourced from ethics portal - 99.999% parity with english data)
+
+```
+{
+    name: String,     # name of mp
     category: String, # eg. Assets, Sponsored Travel
     content: String,  # full content from ethics portal
 }
