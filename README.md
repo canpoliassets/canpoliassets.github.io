@@ -54,9 +54,16 @@ npm start
     name: String,     # name of mp
     category: String, # eg. Assets, Sponsored Travel
     content: String,  # full content from ethics portal
-    category_fr: String, # eg. Passifs
-    content_fr: String, # en francais
-    
+}
+```
+
+`disclosures_fr` - What MPs have declared, but in french (sourced from the ethics portal)
+
+```
+{
+    name: String,     # name of mp
+    category: String, # eg. Passifs
+    content: String, # en francais
 }
 ```
 
