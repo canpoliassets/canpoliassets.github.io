@@ -130,10 +130,17 @@ app.get('/mla/:name', async (req, res) => {
         if (disclosures[i]['content'].includes("Rental Property")) {
             landlord = true;
         }
+        // Investor checks are excessive and tedious, I may try to restructure data to improve this. . .
         if (disclosures[i]['content'].includes("ETF")) {
             investor = true;
         }
         if (disclosures[i]['content'].includes("Fund Series")) {
+            investor = true;
+        }
+        if (disclosures[i]['content'].includes("Income Fund")) {
+            investor = true;
+        }
+        if (disclosures[i]['content'].includes("Yield Fund")) {
             investor = true;
         }
         if (disclosures[i]['category'] == 'Securities & RRSP') {
