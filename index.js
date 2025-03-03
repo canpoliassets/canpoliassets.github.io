@@ -146,6 +146,9 @@ app.get('/mla/:name', async (req, res) => {
         if (disclosures[i]['category'] == 'Securities & RRSP') {
             investor = true;
         }
+        if (disclosures[i]['category'] == 'Assets' && disclosures[i]['content'].includes("Fund")) {
+            investor = true;
+        }
     }
 
     res.render('alberta-mla', {
