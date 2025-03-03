@@ -133,6 +133,9 @@ app.get('/mla/:name', async (req, res) => {
         if (disclosures[i]['content'].includes("ETF")) {
             investor = true;
         }
+        if (disclosures[i]['content'].includes("Fund Series")) {
+            investor = true;
+        }
         if (disclosures[i]['category'] == 'Securities & RRSP') {
             investor = true;
         }
