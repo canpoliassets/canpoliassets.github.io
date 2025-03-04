@@ -111,3 +111,24 @@ Ideally we should derive this from the ethics portal disclosures directly. . .
     image_name: String
 }
 ```
+
+`alberta_disclosures` - What MLAs have declared. No official French language translations available.
+
+```
+{
+    name: String,     # name of mp
+    category: String, # eg. Assets, Sponsored Travel
+    content: String,  # full content from ethics portal
+}
+```
+
+`quebec_mnas` - Members of National Assembly for Quebec
+
+```
+{
+    name: String,
+    constituency: String,
+    party: String, # in french by default
+    image_name: String
+}
+```
