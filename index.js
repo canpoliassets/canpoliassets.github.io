@@ -13,6 +13,9 @@ const DISCLOSURES = database.collection('disclosures'); // Disclosures sourced f
 const ONTARIO_MPPS = database.collection('ontario_mpps');
 const ONTARIO_DISCLOSURES = database.collection('ontario_disclosures');
 
+const ALBERTA_MLAS = database.collection('alberta_mlas');
+const ALBERTA_DISCLOSURES = database.collection('alberta_disclosures');
+
 const COLLATION = { collation : {locale: "fr_CA", strength: 2 }}
 
 const express = require('express');
@@ -25,6 +28,7 @@ app.set('view engine', 'pug');
 
 app.locals.siteTitle = 'Is My MP a Landlord?';
 app.locals.ontarioSiteTitle = 'Is My MPP a Landlord?';
+app.locals.albertaSiteTitle = 'Is My MLA a Landlord?';
 app.locals.contactEmail = 'mplandlordcheck [ at ] protonmail [ dot ] com';
 app.locals.prciec = {
     href: 'https://prciec-rpccie.parl.gc.ca/EN/PublicRegistries/Pages/PublicRegistry.aspx',
@@ -34,6 +38,10 @@ app.locals.pds = {
     href: 'https://pds.oico.on.ca/Pages/Public/PublicDisclosures.aspx',
     label: 'Office of the Integrity Commissioner',
 };
+app.locals.ethicscommissioner = {
+    href: 'https://www.ethicscommissioner.ab.ca/disclosure/mla-public-disclosure/',
+    label: 'Office of the Ethics Commissioner'
+}
 
 app.use((req, res, next) => {
     res.locals.currentPath = req.path;
@@ -52,6 +60,9 @@ app.get('/ontario', (_req, res) => {
     res.render('ontario-index');
 });
 
+app.get('/alberta', (_req, res) => {
+    res.render('alberta-index');
+});
 
 app.get('/about', (_req, res) => {
     res.render('about', { title: 'About Us' });
@@ -97,6 +108,49 @@ app.get('/mpp/:name', async (req, res) => {
     });
 });
 
+app.get('/mla/:name', async (req, res) => {
+    const { name } = req.params;
+
+    name_split = name.split("_");
+    final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
+
+    let mla = await ALBERTA_MLAS.findOne({ name: final_name_sanitized }, COLLATION);
+    let disclosures = await ALBERTA_DISCLOSURES.find({ name: final_name_sanitized }, COLLATION).sort({ category: 1 }).toArray();
+
+    let homeowner = false;
+    let landlord = false;
+    let investor = false;
+    for (i=0; i<disclosures.length;++i) {
+        if (disclosures[i]['category'] == 'Property') {
+            homeowner = true;
+        }
+        if (disclosures[i]['content'].includes("Rental Income")) {
+            landlord = true;
+        }
+        if (disclosures[i]['content'].includes("Rental Property")) {
+            landlord = true;
+        }
+        if (disclosures[i]['category'].includes("Securities")) {
+            investor = true;
+        }
+        if (disclosures[i]['category'].includes("Bonds & Certificates")) {
+            investor = true;
+        }
+        if (disclosures[i]['category'].includes("Financial Assets")) {
+            investor = true;
+        }
+    }
+
+    res.render('alberta-mla', {
+        title: 'Member Details',
+        ...mla,
+        groupedDisclosures: groupDisclosures(disclosures),
+        homeowner: albertaTextGenerator(mla['name'], "Homeowner", homeowner),
+        landlord: albertaTextGenerator(mla['name'], "Landlord", landlord),
+        investor: albertaInvestorTextGenerator(mla['name'], investor),
+    });
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/api/mps-data', async (_req, res) => {
@@ -112,6 +166,15 @@ app.get('/api/mpps-data', async (_req, res) => {
     try {
         let allMPPS = await ONTARIO_MPPS.find({ }).sort({ name: 1 }).toArray();
         res.json({ mpps: allMPPS });
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching items' });
+    }
+});
+
+app.get('/api/mlas-data', async (_req, res) => {
+    try {
+        let allMLAS = await ALBERTA_MLAS.find({ }).sort({ name: 1 }).toArray();
+        res.json({ mlas: allMLAS });
     } catch (error) {
         res.status(500).json({ error: 'Error fetching items' });
     }
@@ -189,3 +252,18 @@ function investorText(name, disclosures) {
     return `${name} is not known to hold significant investments.`;
 }
 
+function albertaTextGenerator(name, title, status) {
+    if (status) {
+        return `${name} is a ${title}.`
+    } else {
+        return `${name} is not known to be a ${title}.`
+    }
+}
+
+function albertaInvestorTextGenerator(name, status) {
+    if (status) {
+        return `${name} holds significant investments.`
+    } else {
+        return `${name} is not known to hold significant investments.`
+    }
+}

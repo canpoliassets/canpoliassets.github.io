@@ -1,0 +1,11 @@
+extends _base
+
+append head
+  include _react-scripts
+  script(type="module" src="js/alberta-index.js")
+
+block main
+  .title
+    h1=albertaSiteTitle
+    p All data sourced from the #[a(href=ethicscommissioner.href)=ethicscommissioner.label]
+  #root
