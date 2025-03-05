@@ -114,6 +114,15 @@ a.invis{
 .progressive-conservative {
     border-color:#002395;
 }
+.coalition-avenir {
+    border-color:#00A8E7;
+}
+.québec-solidaire {
+    border-color: #FF6D29;
+}
+.parti-québécois {
+    border-color: #1E295C;
+}
 
 .independent {
     border-color: silver;
@@ -123,6 +132,9 @@ a.invis{
     border-color:#D71920;
 }
 .ontario-liberal {
+    border-color:#D71920;
+}
+.parti-libéral {
     border-color:#D71920;
 }
 

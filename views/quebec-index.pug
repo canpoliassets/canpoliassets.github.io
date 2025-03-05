@@ -1,0 +1,11 @@
+extends _base
+
+append head
+  include _react-scripts
+  script(type="module" src="js/quebec-index.js")
+
+block main
+  .title
+    h1=quebecSiteTitle
+    p Toutes les données proviennent de #[a(href=ced_qc.href)=ced_qc.label]
+  #root
