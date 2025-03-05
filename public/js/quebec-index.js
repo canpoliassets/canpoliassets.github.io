@@ -42,11 +42,11 @@ function MNAList() {
         return React.createElement('div', null, 'Error loading MNA data');
     }
 
-    const parties = React.useMemo(() => ["All", ...new Set(mnas.map(mna => mna.party))], [mnas]);
+    const parties = React.useMemo(() => ["Tous", ...new Set(mnas.map(mna => mna.party))], [mnas]);
 
     const filteredMps = React.useMemo(() =>
         mnas.filter(mna => {
-        const partyMatch = selectedParty === "All" || mna.party === selectedParty;
+        const partyMatch = selectedParty === "Tous" || mna.party === selectedParty;
             return partyMatch;
         }),
         [mnas, selectedParty]
