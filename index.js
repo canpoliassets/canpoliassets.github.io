@@ -16,6 +16,9 @@ const ONTARIO_DISCLOSURES = database.collection('ontario_disclosures');
 const ALBERTA_MLAS = database.collection('alberta_mlas');
 const ALBERTA_DISCLOSURES = database.collection('alberta_disclosures');
 
+const QUEBEC_MNAS = database.collection('quebec_mnas');
+const QUEBEC_DISCLOSURES = database.collection('quebec_disclosures');
+
 const COLLATION = { collation : {locale: "fr_CA", strength: 2 }}
 
 const express = require('express');
@@ -29,6 +32,7 @@ app.set('view engine', 'pug');
 app.locals.siteTitle = 'Is My MP a Landlord?';
 app.locals.ontarioSiteTitle = 'Is My MPP a Landlord?';
 app.locals.albertaSiteTitle = 'Is My MLA a Landlord?';
+app.locals.quebecSiteTitle = 'Mon député est-il un propriétaire?';
 app.locals.contactEmail = 'mplandlordcheck [ at ] protonmail [ dot ] com';
 app.locals.prciec = {
     href: 'https://prciec-rpccie.parl.gc.ca/EN/PublicRegistries/Pages/PublicRegistry.aspx',
@@ -41,6 +45,10 @@ app.locals.pds = {
 app.locals.ethicscommissioner = {
     href: 'https://www.ethicscommissioner.ab.ca/disclosure/mla-public-disclosure/',
     label: 'Office of the Ethics Commissioner'
+}
+app.locals.ced_qc = {
+    href: 'https://www.ced-qc.ca/fr/registres-publics/sommaires-des-declarations-des-interets-personnels/22-membres-du-conseil-executif-et-deputes',
+    label: 'Sommaires des déclarations des intérêts personnels'
 }
 
 app.use((req, res, next) => {
@@ -62,6 +70,10 @@ app.get('/ontario', (_req, res) => {
 
 app.get('/alberta', (_req, res) => {
     res.render('alberta-index');
+});
+
+app.get('/quebec', (_req, res) => {
+    res.render('quebec-index');
 });
 
 app.get('/about', (_req, res) => {
@@ -151,6 +163,51 @@ app.get('/mla/:name', async (req, res) => {
     });
 });
 
+app.get('/mna/:name', async (req, res) => {
+    const { name } = req.params;
+
+    name_split = name.split("_");
+    final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
+
+    let mna = await QUEBEC_MNAS.findOne({ name: final_name_sanitized }, COLLATION);
+    let disclosures = await QUEBEC_DISCLOSURES.find({ name: final_name_sanitized }, COLLATION).sort({ category: 1 }).toArray();
+
+    let homeowner = false;
+    let landlord = false;
+    let investor = false;
+    // Revenu de location = landlord
+    // résidentielles personnelles = homeowner
+    for (i=0; i<disclosures.length;++i) {
+        if (disclosures[i]['content'].includes('résidentielles personnelles')) {
+            homeowner = true;
+        }
+        if (disclosures[i]['content'].includes("Revenu de location")) {
+            landlord = true;
+        }
+        if (disclosures[i]['category'].includes("Fiducie ou mandat sans droit de regard")) {
+            investor = true;
+        }
+        if (disclosures[i]['category'].includes("Entreprises, personnes, morales, sociétés et associations, mentionnées")) {
+            investor = true;
+        }
+        if (disclosures[i]['category'].includes("Succession ou fiducie, dont la ou le membre est bénéficiaire pour une valeur de 10 000 $ et plus")) {
+            investor = true;
+        }
+        if (disclosures[i]['category'].includes("Succession ou fiducie, dont la ou le membre est bénéficiaire pour une valeur de 10 000 $ et plus")) {
+            investor = true;
+        }
+    }
+
+    res.render('quebec-mna', {
+        title: 'Détails du Membre',
+        ...mna,
+        groupedDisclosures: groupDisclosures(disclosures),
+        homeowner: quebecHomeOwnerGenerator(mna['name'], homeowner),
+        landlord: quebecLandlordGenerator(mna['name'], landlord),
+        investor: quebecInvestorGenerator(mna['name'], investor),
+    });
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/api/mps-data', async (_req, res) => {
@@ -175,6 +232,15 @@ app.get('/api/mlas-data', async (_req, res) => {
     try {
         let allMLAS = await ALBERTA_MLAS.find({ }).sort({ name: 1 }).toArray();
         res.json({ mlas: allMLAS });
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching items' });
+    }
+});
+
+app.get('/api/mnas-data', async (_req, res) => {
+    try {
+        let allMNAS = await QUEBEC_MNAS.find({ }).sort({ name: 1 }).toArray();
+        res.json({ mnas: allMNAS });
     } catch (error) {
         res.status(500).json({ error: 'Error fetching items' });
     }
@@ -265,5 +331,29 @@ function albertaInvestorTextGenerator(name, status) {
         return `${name} holds significant investments.`
     } else {
         return `${name} is not known to hold significant investments.`
+    }
+}
+
+function quebecHomeOwnerGenerator(name, status) {
+    if (status) {
+        return `${name} est propriétaire d'un logement.`
+    } else {
+        return `${name} n'est pas connu pour être propriétaire d'une logement.`
+    }
+}
+
+function quebecLandlordGenerator(name, status) {
+    if (status) {
+        return `${name} reçoit un revenu de location.`
+    } else {
+        return `${name} ne reçoit pas de revenu de location.`
+    }
+}
+
+function quebecInvestorGenerator(name, status) {
+    if (status) {
+        return `${name} possède des actifs ou des investissements importants.`
+    } else {
+        return `${name} n'est pas connu pour avoir des actifs ou des investissements importants.`
     }
 }
