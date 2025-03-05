@@ -24,7 +24,7 @@ function MNAList() {
     const [mnas, setMnas] = React.useState([]);
     const [error, setError] = React.useState(null);
 
-    const [selectedParty, setSelectedParty] = React.useState("All");
+    const [selectedParty, setSelectedParty] = React.useState("Tous");
   
     React.useEffect(() => {
         fetch('/api/mnas-data')
@@ -65,7 +65,7 @@ function MNAList() {
                 },
                 React.createElement(
                 "option",
-                { value: "All" },
+                { value: "Tous" },
                 "Filtrer par parti politique"
                 ),
                 ...parties.map(party => 
