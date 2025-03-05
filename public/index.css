@@ -187,9 +187,6 @@ body {
 }
 
 @media (max-width: 768px) {
-    .flex {
-        min-width: 0px;
-    }
     .mp-grid-container {
         grid-template-columns: repeat(2, 1fr); /* Two columns on tablets */
         align-content: center;
@@ -203,9 +200,6 @@ body {
 }
   
 @media (max-width: 480px) {
-    .flex {
-        min-width: 0px;
-    }
     .mp-grid-container {
         grid-template-columns: repeat(1, 1fr);
         align-content: center;
