@@ -142,3 +142,14 @@ Ideally we should derive this from the ethics portal disclosures directly. . .
     content: String,  # full content from ethics portal
 }
 ```
+
+`british_columbia_mlas` - Members of Provincial Parliament for British Columbia
+
+```
+{
+    name: String,
+    constituency: String,
+    party: String,
+    image_name: String
+}
+```
