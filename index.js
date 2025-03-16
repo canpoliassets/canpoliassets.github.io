@@ -1,6 +1,5 @@
 import express from "express";
 import { MongoClient } from "mongodb";
-import { createServer } from "http";
 import path from "path";
 import pug from "pug";
 
@@ -25,7 +24,6 @@ const QUEBEC_DISCLOSURES = database.collection('quebec_disclosures');
 const COLLATION = { collation : {locale: "fr_CA", strength: 2 }}
 
 const app = express();
-createServer(app);
 
 app.set('view engine', 'pug');
 
