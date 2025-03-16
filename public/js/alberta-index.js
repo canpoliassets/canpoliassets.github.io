@@ -3,7 +3,7 @@ function MLAPortrait({ mpData: mlaData }) {
     React.createElement('a', { className: 'mp-container', href: `mla/${mlaData.name.replaceAll(' ','_').toLowerCase()}`},
         React.createElement('div', { className: 'flex' }, 
             React.createElement('div', { className: 'img-container' }, 
-                React.createElement('img', { className: 'mp-img', src: `/images/mla_images/${mlaData.image_name}`, loading: 'lazy' })
+                React.createElement('img', { className: 'mp-img', src: `/images/ab_mla_images/${mlaData.image_name}`, loading: 'lazy' })
             ),
             React.createElement('div', { className: 'txt-container' }, 
                 React.createElement('div', { className: 'top-tile' }, 
