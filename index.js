@@ -1,6 +1,14 @@
 import express from "express";
 import { MongoClient } from "mongodb";
 import path from "path";
+import rosetta from "rosetta";
+
+/* Translations */
+import en from "./translations/en.json" with { type: "json" };
+import fr from "./translations/fr.json" with { type: "json" };
+
+// Initialize localization
+const i18n = rosetta({ en, fr });
 
 const uri = process.env.MONGO_URI;
 
@@ -26,81 +34,44 @@ const app = express();
 
 app.set('view engine', 'pug');
 
-app.locals.siteTitle = 'Is My MP a Landlord?';
-app.locals.ontarioSiteTitle = 'Is My MPP a Landlord?';
-app.locals.albertaSiteTitle = 'Is My MLA a Landlord?';
-app.locals.quebecSiteTitle = 'Mon député est-il un propriétaire?';
-app.locals.contactEmail = 'mplandlordcheck [ at ] protonmail [ dot ] com';
-app.locals.prciec = {
-    href: 'https://prciec-rpccie.parl.gc.ca/EN/PublicRegistries/Pages/PublicRegistry.aspx',
-    label: 'Office of Conflict of Interest and Ethics Commissioner',
-};
-app.locals.pds = {
-    href: 'https://pds.oico.on.ca/Pages/Public/PublicDisclosures.aspx',
-    label: 'Office of the Integrity Commissioner',
-};
-app.locals.ethicscommissioner = {
-    href: 'https://www.ethicscommissioner.ab.ca/disclosure/mla-public-disclosure/',
-    label: 'Office of the Ethics Commissioner'
-}
-app.locals.ced_qc = {
-    href: 'https://www.ced-qc.ca/fr/registres-publics/sommaires-des-declarations-des-interets-personnels/22-membres-du-conseil-executif-et-deputes',
-    label: 'Sommaires des déclarations des intérêts personnels'
-}
+// TODO: this whole block can be removed once all pages are localized as it’s
+// DUPLICATED elsewhere (so keep it up-to-date too!
+i18n.locale("en");
+Object.assign(app.locals, {
+    t: i18n.t,
+    lang: "en",
+    siteTitle: i18n.t("siteTitle"),
+    ontarioSiteTitle: "Is My MPP a Landlord?",
+    albertaSiteTitle: "Is My MLA a Landlord?",
+    quebecSiteTitle: "Mon député est-il un propriétaire?",
+    contactEmail: "mplandlordcheck [ at ] protonmail [ dot ] com",
+    prciec: {
+        href: "https://prciec-rpccie.parl.gc.ca/EN/PublicRegistries/Pages/PublicRegistry.aspx",
+        label: "Office of Conflict of Interest and Ethics Commissioner",
+    },
+    pds: {
+        href: "https://pds.oico.on.ca/Pages/Public/PublicDisclosures.aspx",
+        label: "Office of the Integrity Commissioner",
+    },
+    ethicscommissioner: {
+        href: "https://www.ethicscommissioner.ab.ca/disclosure/mla-public-disclosure/",
+        label: "Office of the Ethics Commissioner"
+    },
+    ced_qc: {
+        href: "https://www.ced-qc.ca/fr/registres-publics/sommaires-des-declarations-des-interets-personnels/22-membres-du-conseil-executif-et-deputes",
+        label: "Sommaires des déclarations des intérêts personnels",
+    },
+});
 
 app.use((req, res, next) => {
     res.locals.currentPath = req.path;
-    // Set the locale here
-    res.locals.lang = 'en';
     next();
 });
 
-app.get('/', async (_req, res) => {
-    let mps = await MPS.aggregate([
-        {
-            $lookup: {
-                from: "sheet_data",
-                localField: "name",
-                foreignField: "name",
-                as: "sheet_data_matches"
-            },
-        },
-        {
-            $replaceRoot: {
-                newRoot: {
-                    $mergeObjects: [ { $arrayElemAt: [ "$sheet_data_matches", 0 ] }, "$$ROOT" ],
-                },
-            },
-        },
-        {
-            $project: { sheet_data_matches: 0 },
-        },
-    ]).sort({ name: 1 }).toArray();
+app.use(express.static(path.join(import.meta.dirname, "./public")));
 
-    const parties = new Map();
-    let totalMps = 0;
-    let totalLandlords = 0;
-
-    for (const mp of mps) {
-        mp.landlord = mp.landlord === "Y";
-        mp.homeowner = mp.home_owner === "Y";
-        delete mp.home_owner;
-        mp.investor = mp.investor === "Y";
-
-        if (mp.party != null) {
-            const party = parties.get(mp.party) ?? parties.set(mp.party, { mps: 0, landlords: 0 }).get(mp.party);
-
-            party.mps++;
-            totalMps++;
-
-            if (mp.landlord) {
-                party.landlords++;
-                totalLandlords++;
-            }
-        }
-    }
-
-    res.render('index', { mps, parties, totalMps, totalLandlords });
+app.get("/", (req, res) => {
+    res.render("choose-language")
 });
 
 app.get('/ontario', (_req, res) => {
@@ -247,8 +218,6 @@ app.get('/mna/:name', async (req, res) => {
     });
 });
 
-app.use(express.static(path.join(import.meta.dirname, "./public")));
-
 app.get('/api/mps-data', async (_req, res) => {
     try {
         let allMPS = await MPS.find({ }).sort({ name: 1 }).toArray();
@@ -289,6 +258,90 @@ app.get('/robots.txt', function (_req, res) {
     res.type('text/plain');
     // res.send("User-agent: *\nDisallow: /");
     res.send("User-agent: *Allow: /")
+});
+
+// These localized routes need to come after the non-localized ones or static files for now…
+
+app.get("/:lang/*", (req, res, next) => {
+    const { lang } = req.params;
+    // TODO: How are errors handled in Express?
+    if (lang !== "en" && lang !== "fr") throw "Unsupported locale";
+    i18n.locale(lang);
+
+    Object.assign(res.locals, {
+        lang,
+        siteTitle: i18n.t("siteTitle"),
+        ontarioSiteTitle: "Is My MPP a Landlord?",
+        albertaSiteTitle: "Is My MLA a Landlord?",
+        quebecSiteTitle: "Mon député est-il un propriétaire?",
+        contactEmail: "mplandlordcheck [ at ] protonmail [ dot ] com",
+        prciec: {
+            href: "https://prciec-rpccie.parl.gc.ca/EN/PublicRegistries/Pages/PublicRegistry.aspx",
+            label: "Office of Conflict of Interest and Ethics Commissioner",
+        },
+        pds: {
+            href: "https://pds.oico.on.ca/Pages/Public/PublicDisclosures.aspx",
+            label: "Office of the Integrity Commissioner",
+        },
+        ethicscommissioner: {
+            href: "https://www.ethicscommissioner.ab.ca/disclosure/mla-public-disclosure/",
+            label: "Office of the Ethics Commissioner"
+        },
+        ced_qc: {
+            href: "https://www.ced-qc.ca/fr/registres-publics/sommaires-des-declarations-des-interets-personnels/22-membres-du-conseil-executif-et-deputes",
+            label: "Sommaires des déclarations des intérêts personnels",
+        },
+    });
+
+    next();
+});
+
+app.get('/:lang/', async (_req, res) => {
+    let mps = await MPS.aggregate([
+        {
+            $lookup: {
+                from: "sheet_data",
+                localField: "name",
+                foreignField: "name",
+                as: "sheet_data_matches"
+            },
+        },
+        {
+            $replaceRoot: {
+                newRoot: {
+                    $mergeObjects: [ { $arrayElemAt: [ "$sheet_data_matches", 0 ] }, "$$ROOT" ],
+                },
+            },
+        },
+        {
+            $project: { sheet_data_matches: 0 },
+        },
+    ]).sort({ name: 1 }).toArray();
+
+    const parties = new Map();
+    let totalMps = 0;
+    let totalLandlords = 0;
+
+    for (const mp of mps) {
+        mp.landlord = mp.landlord === "Y";
+        mp.homeowner = mp.home_owner === "Y";
+        delete mp.home_owner;
+        mp.investor = mp.investor === "Y";
+
+        if (mp.party != null) {
+            const party = parties.get(mp.party) ?? parties.set(mp.party, { mps: 0, landlords: 0 }).get(mp.party);
+
+            party.mps++;
+            totalMps++;
+
+            if (mp.landlord) {
+                party.landlords++;
+                totalLandlords++;
+            }
+        }
+    }
+
+    res.render('index', { mps, parties, totalMps, totalLandlords });
 });
 
 const PORT = process.env.PORT || 3000;

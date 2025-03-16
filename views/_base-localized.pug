@@ -1,27 +1,29 @@
 doctype html
-html.no-js(lang=`${lang}-ca`)
+html(lang=`${lang}-ca`)
   head
     block head
       meta(charset="utf-8")
       meta(name="viewport" content="width=device-width,initial-scale=1")
       title=title ? `${title} | ${siteTitle}` : siteTitle
-      script document.documentElement.classList.remove("no-js")
-      link(rel="preconnect" href="https://fonts.googleapis.com")
-      link(rel="preconnect" href="https://fonts.gstatic.com" crossorigin)
       link(rel="stylesheet" href="/main.css")
       link(rel="stylesheet" href="/index.css")
-      link(rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:ital,wght@0,200..800;1,200..800&family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&display=swap")
   body
     header
       nav
         mixin nav-link
           a(aria-current=attributes.href === currentPath && "page")&attributes(attributes)
             block
-        +nav-link(href=`/${lang}/`) Home
+        +nav-link(href=`/${lang}/`)=t("siteTitle")
         +nav-link(href="/about") About
         +nav-link(href="/ontario") Ontario MPPS
         +nav-link(href="/alberta") Alberta MLAS
         +nav-link(href="/quebec") Quebec MNAS
+        div(style="position: absolute; inset-block-start: 0; inset-inline-end: 0; padding: 0.25rem;")
+          case lang
+            when "en"
+              a(href="/fr/") Français
+            when "fr"
+              a(href="/en/") English
     main
       block main
     footer.contact

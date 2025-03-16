@@ -1,0 +1,9 @@
+{
+    "siteTitle": "Is My MP a Landlord?",
+    "allDataSourcedFrom": "All data sourced from the <a href=\"{{sourceLink}}\">{{sourceLabel}}</a>",
+    "all": "All",
+    "party": "Party",
+    "province": "Province",
+    "constituency": "Constituency",
+    "home": "Home"
+}

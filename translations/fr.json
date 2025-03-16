@@ -1,0 +1,9 @@
+{
+    "siteTitle": "Est-ce que mon député est propriétaire?",
+    "allDataSourcedFrom": "Toutes les données proviennent du <a href=\"{{sourceLink}}\">{{sourceLabel}}</a>",
+    "all": "Toutes",
+    "party": "Parti",
+    "province": "Province",
+    "constituency": "Circonscription",
+    "home": "Home"
+}
