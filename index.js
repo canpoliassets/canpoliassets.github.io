@@ -1,6 +1,9 @@
-require('dotenv').config(); //initialize dotenv
+import express from "express";
+import { MongoClient } from "mongodb";
+import { createServer } from "http";
+import path from "path";
+import pug from "pug";
 
-const { MongoClient } = require("mongodb");
 const uri = process.env.MONGO_URI;
 
 const dbClient = new MongoClient(uri);
@@ -21,11 +24,8 @@ const QUEBEC_DISCLOSURES = database.collection('quebec_disclosures');
 
 const COLLATION = { collation : {locale: "fr_CA", strength: 2 }}
 
-const express = require('express');
 const app = express();
-const http = require('http').createServer(app);
-const path = require('path');
-const pug = require('pug');
+createServer(app);
 
 app.set('view engine', 'pug');
 
@@ -208,7 +208,7 @@ app.get('/mna/:name', async (req, res) => {
     });
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(import.meta.dirname, 'public')));
 
 app.get('/api/mps-data', async (_req, res) => {
     try {
@@ -253,7 +253,7 @@ app.get('/robots.txt', function (_req, res) {
 });
 
 const PORT = process.env.PORT || 3000;
-http.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 
 
