@@ -5,3 +5,9 @@
 :root {
     scrollbar-gutter: stable;
 }
+
+.sorting-container select {
+    /* Fallback for field-sizing */
+    max-inline-size: 100%;
+    field-sizing: content;
+}
