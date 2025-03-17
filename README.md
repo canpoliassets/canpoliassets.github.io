@@ -142,3 +142,24 @@ Ideally we should derive this from the ethics portal disclosures directly. . .
     image_name: String
 }
 ```
+
+`quebec_disclosures` - What MNAs have declared. No official English language translations available.
+
+```
+{
+    name: String,     # name of mp
+    category: String, # eg. Passifs etc
+    content: String,  # full content from ethics portal
+}
+```
+
+`british_columbia_mlas` - Members of Provincial Parliament for British Columbia
+
+```
+{
+    name: String,
+    constituency: String,
+    party: String,
+    image_name: String
+}
+```

@@ -1,29 +1,21 @@
-const [filterByParty, filterByProvince, filterByConstituency] = document.querySelectorAll("select");
+const ALL = document.documentElement.lang === "fr-ca" ? "Toutes" : "All";
+const controls = [filterByParty, filterByProvince, filterByConstituency] = document.querySelectorAll("select");
 
-filterByParty.addEventListener("input", filterResults);
-filterByProvince.addEventListener("input", filterResults);
-filterByConstituency.addEventListener("input", filterResults);
+for (const control of controls) control.addEventListener("input", filterResults)
 
 function filterResults(mp) {
-    if (document.startViewTransition) {
-        document.startViewTransition(() => {
-            for (const mp of document.querySelectorAll(".mp-card")) {
-                mp.hidden = 
-                    filterByParty.value === "All" && filterByProvince.value === "All" && filterByConstituency.value === "All"
-                        ? false
-                        : (filterByProvince.value !== "All" && mp.dataset.province !== filterByProvince.value) ||
-                          (filterByParty.value !== "All" && mp.dataset.party !== filterByParty.value) ||
-                          (filterByConstituency.value !== "All" && mp.dataset.constituency !== filterByConstituency.value);
-            }
-        });
-    } else {
+    if (matchMedia("not (prefers-reduced-motion)").matches) filter();
+    document.startViewTransition?.(filter) ?? filter();
+
+    function filter() {
         for (const mp of document.querySelectorAll(".mp-card")) {
             mp.hidden = 
-                filterByParty.value === "All" && filterByProvince.value === "All" && filterByConstituency.value === "All"
-                    ? false
-                    : (filterByProvince.value !== "All" && mp.dataset.province !== filterByProvince.value) ||
-                    (filterByParty.value !== "All" && mp.dataset.party !== filterByParty.value) ||
-                    (filterByConstituency.value !== "All" && mp.dataset.constituency !== filterByConstituency.value);
+                filterByParty.value === ALL && filterByProvince.value === ALL && filterByConstituency.value === ALL
+                ? false
+                : (filterByProvince.value !== ALL && mp.dataset.province !== filterByProvince.value) ||
+                  (filterByParty.value !== ALL && mp.dataset.party !== filterByParty.value) ||
+                  (filterByConstituency.value !== ALL && mp.dataset.constituency !== filterByConstituency.value);
         }
     }
 }
+
