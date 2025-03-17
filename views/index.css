@@ -1,9 +1,13 @@
-@media (prefers-reduced-motion) {
-    @view-transition {
-        navigation: auto;
-    }
+@view-transition {
+    navigation: auto;
 }
 
 :root {
     scrollbar-gutter: stable;
+}
+
+.sorting-container select {
+    /* Fallback for field-sizing */
+    max-inline-size: 100%;
+    field-sizing: content;
 }
