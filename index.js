@@ -1,6 +1,7 @@
-require('dotenv').config(); //initialize dotenv
+import express from "express";
+import { MongoClient } from "mongodb";
+import pug from "pug";
 
-const { MongoClient } = require("mongodb");
 const uri = process.env.MONGO_URI;
 
 const dbClient = new MongoClient(uri);
@@ -21,11 +22,7 @@ const QUEBEC_DISCLOSURES = database.collection('quebec_disclosures');
 
 const COLLATION = { collation : {locale: "fr_CA", strength: 2 }}
 
-const express = require('express');
 const app = express();
-const http = require('http').createServer(app);
-const path = require('path');
-const pug = require('pug');
 
 app.set('view engine', 'pug');
 
@@ -83,9 +80,9 @@ app.get('/about', (_req, res) => {
 app.get('/mp/:name', async (req, res) => {
     const { name } = req.params;
 
-    name_split = name.split("_");
-    province = name_split.pop(0);
-    final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
+    let name_split = name.split("_");
+    let province = name_split.pop(0);
+    let final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
 
     let mp = await MPS.findOne({ name: final_name_sanitized, province: province }, COLLATION);
     let { home_owner, landlord, investor } = await SHEET_DATA.findOne({ name: final_name_sanitized }, COLLATION);
@@ -104,8 +101,8 @@ app.get('/mp/:name', async (req, res) => {
 app.get('/mpp/:name', async (req, res) => {
     const { name } = req.params;
 
-    name_split = name.split("_");
-    final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
+    let name_split = name.split("_");
+    let final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
 
     let mpp = await ONTARIO_MPPS.findOne({ name: final_name_sanitized }, COLLATION);
     let disclosures = await ONTARIO_DISCLOSURES.find({ name: final_name_sanitized }, COLLATION).sort({ category: 1 }).toArray();
@@ -123,8 +120,8 @@ app.get('/mpp/:name', async (req, res) => {
 app.get('/mla/:name', async (req, res) => {
     const { name } = req.params;
 
-    name_split = name.split("_");
-    final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
+    let name_split = name.split("_");
+    let final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
 
     let mla = await ALBERTA_MLAS.findOne({ name: final_name_sanitized }, COLLATION);
     let disclosures = await ALBERTA_DISCLOSURES.find({ name: final_name_sanitized }, COLLATION).sort({ category: 1 }).toArray();
@@ -132,7 +129,7 @@ app.get('/mla/:name', async (req, res) => {
     let homeowner = false;
     let landlord = false;
     let investor = false;
-    for (i=0; i<disclosures.length;++i) {
+    for (let i=0; i<disclosures.length;++i) {
         if (disclosures[i]['category'] == 'Property') {
             homeowner = true;
         }
@@ -166,8 +163,8 @@ app.get('/mla/:name', async (req, res) => {
 app.get('/mna/:name', async (req, res) => {
     const { name } = req.params;
 
-    name_split = name.split("_");
-    final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
+    let name_split = name.split("_");
+    let final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
 
     let mna = await QUEBEC_MNAS.findOne({ name: final_name_sanitized }, COLLATION);
     let disclosures = await QUEBEC_DISCLOSURES.find({ name: final_name_sanitized }, COLLATION).sort({ category: 1 }).toArray();
@@ -177,7 +174,7 @@ app.get('/mna/:name', async (req, res) => {
     let investor = false;
     // Revenu de location = landlord
     // résidentielles personnelles = homeowner
-    for (i=0; i<disclosures.length;++i) {
+    for (let i=0; i<disclosures.length;++i) {
         if (disclosures[i]['content'].includes('résidentielles personnelles')) {
             homeowner = true;
         }
@@ -208,7 +205,8 @@ app.get('/mna/:name', async (req, res) => {
     });
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+const assetURL = new URL(import.meta.resolve("./public"));
+app.use(express.static(assetURL.pathname));
 
 app.get('/api/mps-data', async (_req, res) => {
     try {
@@ -253,7 +251,7 @@ app.get('/robots.txt', function (_req, res) {
 });
 
 const PORT = process.env.PORT || 3000;
-http.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 
 
