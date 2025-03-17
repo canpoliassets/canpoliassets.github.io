@@ -1,6 +1,6 @@
 import express from "express";
 import { MongoClient } from "mongodb";
-import pug from "pug";
+import path from "path";
 
 const uri = process.env.MONGO_URI;
 
@@ -205,8 +205,7 @@ app.get('/mna/:name', async (req, res) => {
     });
 });
 
-const assetURL = new URL(import.meta.resolve("./public"));
-app.use(express.static(assetURL.pathname));
+app.use(express.static(path.join(import.meta.dirname, "./public")));
 
 app.get('/api/mps-data', async (_req, res) => {
     try {
