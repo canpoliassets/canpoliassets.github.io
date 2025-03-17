@@ -6,8 +6,8 @@
   "main": "index.js",
   "scripts": {
     "test": "npm test",
-    "start": "node --env-file=.env index.js",
-    "dev": "node --env-file=.env --watch index.js"
+    "start": "node --env-file-if-exists=.env index.js",
+    "dev": "node --env-file-if-exists=.env --watch index.js"
   },
   "keywords": [
     "mp"
