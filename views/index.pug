@@ -9,6 +9,12 @@ append foot
 block main
   .title
     h1=siteTitle
+    h4.landlord-count=`Liberal Party: ${partyCounts[0][0]} / ${partyCounts[0][1]} MP's are Landlords.`
+    h4.landlord-count=`Conservative Party: ${partyCounts[1][0]} / ${partyCounts[1][1]} MP's are Landlords.`
+    h4.landlord-count=`NDP: ${partyCounts[2][0]} / ${partyCounts[2][1]} MP's are Landlords.`
+    h4.landlord-count=`Bloc Québécois: ${partyCounts[3][0]} / ${partyCounts[3][1]} MP's are Landlords.`
+    h4.landlord-count=`Green Party: ${partyCounts[4][0]} / ${partyCounts[4][1]} MP's are Landlords.`
+    h4.landlord-count=`Independant: ${partyCounts[5][0]} / ${partyCounts[5][1]} MP's are Landlords.`
     p All data sourced from the #[a(href=prciec.href)=prciec.label]
   #root
     .mega-container

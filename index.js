@@ -58,7 +58,46 @@ app.use((req, res, next) => {
 app.get('/', async (_req, res) => {
     let mps = await MPS.find({ }).sort({ name: 1 }).toArray();
 
-    res.render('index', { mps });
+    async function getPartyLandlordCount(partyName) {
+        let landlordTotal = await MPS.aggregate([
+            {
+              $match: { party: partyName }
+            },
+            {
+              $lookup: {
+                from: 'sheet_data',
+                let: { name: '$name' },
+                pipeline: [
+                  { $match: { 
+                    $expr: {
+                      $and: [
+                        { $eq: ['$$name', '$name'] },
+                        { $eq: ['$landlord', 'Y']}
+                      ]
+                    }
+                  }}
+                ],
+                as: 'sheet_data_match'
+              }
+            },
+            {
+              $match: { 'sheet_data_match.0': { $exists: true } }
+            },
+            {
+              $count: 'total'
+            }
+        ]).toArray();
+        let mpTotal = await MPS.countDocuments({ party: partyName });
+        return [landlordTotal[0].total, mpTotal];
+    }
+
+    let libCount = await getPartyLandlordCount('Liberal');
+    let conCount = await getPartyLandlordCount('Conservative');
+    let ndpCount = await getPartyLandlordCount('NDP');
+    let blocCount = await getPartyLandlordCount('Bloc Québécois');
+    let greenCount = await getPartyLandlordCount('Green Party');
+    let indyCount = await getPartyLandlordCount('Independent');
+    res.render('index', { mps, partyCounts: [libCount, conCount, ndpCount, blocCount, greenCount, indyCount] });
 });
 
 app.get('/ontario', (_req, res) => {
