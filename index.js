@@ -97,7 +97,10 @@ app.get('/', async (_req, res) => {
     let blocCount = await getPartyLandlordCount('Bloc Québécois');
     let greenCount = await getPartyLandlordCount('Green Party');
     let indyCount = await getPartyLandlordCount('Independent');
-    res.render('index', { mps, partyCounts: [libCount, conCount, ndpCount, blocCount, greenCount, indyCount] });
+
+    // TODO: Make this less horrible.
+    let totalCount = [libCount[0] + conCount[0] + ndpCount[0] + blocCount[0] + greenCount[0] + indyCount[0], libCount[1] + conCount[1] + ndpCount[1] + blocCount[1] + greenCount[1] + indyCount[1]]
+    res.render('index', { mps, partyCounts: [libCount, conCount, ndpCount, blocCount, greenCount, indyCount, totalCount] });
 });
 
 app.get('/ontario', (_req, res) => {
