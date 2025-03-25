@@ -19,13 +19,11 @@ a.invis{
     text-align: center;
     color: black;
     font-weight: bolder;
-    font-family: "Gill Sans Extrabold", sans-serif;
 }
 
 .contact {
     text-align: center;
     color: black;
-    font-family: "Consolas", sans-serif;
 }
 
 .mp-list:not([hidden]) {
@@ -82,12 +80,7 @@ a.invis{
 
 .category {
     font-weight: bolder;
-    font-family: 'Arial', Courier, monospace;
     font-size: 12;
-}
-
-.disclosure {
-    font-family: 'Arial', Courier, monospace;
 }
 
 .disclosure-container {
@@ -172,7 +165,6 @@ a.invis{
 }
 
 body {
-    font-family: 'Arial', Courier, monospace;
     background-color: #F2F2F2;
     max-width: 1200px;
     margin: 0 auto;

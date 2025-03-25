@@ -56,53 +56,51 @@ app.use((req, res, next) => {
 });
 
 app.get('/', async (_req, res) => {
-    let mps = await MPS.find({ }).sort({ name: 1 }).toArray();
+    let mps = await MPS.aggregate([
+        {
+            $lookup: {
+                from: "sheet_data",
+                localField: "name",
+                foreignField: "name",
+                as: "sheet_data_matches"
+            },
+        },
+        {
+            $replaceRoot: {
+                newRoot: {
+                    $mergeObjects: [ { $arrayElemAt: [ "$sheet_data_matches", 0 ] }, "$$ROOT" ],
+                },
+            },
+        },
+        {
+            $project: { sheet_data_matches: 0 },
+        },
+    ]).sort({ name: 1 }).toArray();
 
-    async function getPartyLandlordCount(partyName) {
-        let landlordTotal = await MPS.aggregate([
-            {
-              $match: { party: partyName }
-            },
-            {
-              $lookup: {
-                from: 'sheet_data',
-                let: { name: '$name' },
-                pipeline: [
-                  { $match: { 
-                    $expr: {
-                      $and: [
-                        { $eq: ['$$name', '$name'] },
-                        { $eq: ['$landlord', 'Y']}
-                      ]
-                    }
-                  }}
-                ],
-                as: 'sheet_data_match'
-              }
-            },
-            {
-              $match: { 'sheet_data_match.0': { $exists: true } }
-            },
-            {
-              $count: 'total'
+    const parties = new Map();
+    let totalMps = 0;
+    let totalLandlords = 0;
+
+    for (const mp of mps) {
+        mp.landlord = mp.landlord === "Y";
+        mp.homeowner = mp.home_owner === "Y";
+        delete mp.home_owner;
+        mp.investor = mp.investor === "Y";
+
+        if (mp.party != null) {
+            const party = parties.get(mp.party) ?? parties.set(mp.party, { mps: 0, landlords: 0 }).get(mp.party);
+
+            party.mps++;
+            totalMps++;
+
+            if (mp.landlord) {
+                party.landlords++;
+                totalLandlords++;
             }
-        ]).toArray();
-        let mpTotal = await MPS.countDocuments({ party: partyName });
-        return [landlordTotal[0].total, mpTotal];
+        }
     }
 
-    let [libCount, conCount, ndpCount, blocCount, greenCount, indyCount] = await Promise.all([
-        getPartyLandlordCount('Liberal'),
-        getPartyLandlordCount('Conservative'),
-        getPartyLandlordCount('NDP'),
-        getPartyLandlordCount('Bloc Québécois'),
-        getPartyLandlordCount('Green Party'),
-        getPartyLandlordCount('Independent'),
-    ]);
-
-    // TODO: Make this less horrible.
-    let totalCount = [libCount[0] + conCount[0] + ndpCount[0] + blocCount[0] + greenCount[0] + indyCount[0], libCount[1] + conCount[1] + ndpCount[1] + blocCount[1] + greenCount[1] + indyCount[1]]
-    res.render('index', { mps, partyCounts: [libCount, conCount, ndpCount, blocCount, greenCount, indyCount, totalCount] });
+    res.render('index', { mps, parties, totalMps, totalLandlords });
 });
 
 app.get('/ontario', (_req, res) => {

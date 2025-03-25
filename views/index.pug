@@ -9,36 +9,58 @@ append foot
 block main
   .title
     h1=siteTitle
-    h4.landlord-count=`Liberal Party: ${partyCounts[0][0]} / ${partyCounts[0][1]} = ${((partyCounts[0][0] / partyCounts[0][1]) * 100).toFixed(2)}% of MP's are Landlords.`
-    h4.landlord-count=`Conservative Party: ${partyCounts[1][0]} / ${partyCounts[1][1]} = ${((partyCounts[1][0] / partyCounts[1][1]) * 100).toFixed(2)}% of  MP's are Landlords.`
-    h4.landlord-count=`NDP: ${partyCounts[2][0]} / ${partyCounts[2][1]} = ${((partyCounts[2][0] / partyCounts[2][1]) * 100).toFixed(2)}% of  MP's are Landlords.`
-    h4.landlord-count=`Bloc Québécois: ${partyCounts[3][0]} / ${partyCounts[3][1]} = ${((partyCounts[3][0] / partyCounts[3][1]) * 100).toFixed(2)}% of  MP's are Landlords.`
-    h4.landlord-count=`Green Party: ${partyCounts[4][0]} / ${partyCounts[4][1]} = ${((partyCounts[4][0] / partyCounts[4][1]) * 100).toFixed(2)}% of  MP's are Landlords.`
-    h4.landlord-count=`Independant: ${partyCounts[5][0]} / ${partyCounts[5][1]} = ${((partyCounts[5][0] / partyCounts[5][1]) * 100).toFixed(2)}% of  MP's are Landlords.`
-    h4.landlord-count=`${partyCounts[6][0]} / ${partyCounts[6][1]} = ${((partyCounts[6][0] / partyCounts[6][1]) * 100).toFixed(2)}% of all MP's are Landlords.`
     p All data sourced from the #[a(href=prciec.href)=prciec.label]
+  details.totals(open)
+    summary#table-details-label Landlords by party
+    table.totals-table(aria-labelledby="table-details-label")
+      thead
+        th Party
+        th(aria-sort="descending") #[span(aria-hidden="true") ▾] MPs
+        th Landlords
+        th Percentage
+      tbody
+        each data, party in Object.fromEntries(Array.from(parties).sort((a, b) => b[1].mps - a[1].mps))
+          tr(data-party=party)
+            th(scope="row")=party
+            td=data.mps
+            td=data.landlords
+            td=`${(data.landlords / data.mps * 100).toFixed(2)}%`
+      tfoot
+        th(scope="row") Totals
+        td=totalMps
+        td=totalLandlords
+        td=`${(totalLandlords / totalMps * 100).toFixed(2)}%`
   #root
     .mega-container
       .sorting-container
-        p.filter-text Select Party
-        select.filter-selector
-          each party in ["All", ...[...new Set(mps.map(mp => mp.party))].sort()]
-            option(value=party)=party
-        p.filter-text Select Province
-        select.filter-selector
-          each province in ["All", ...[...new Set(mps.map(mp => mp.province))].sort()]
-            option(value=province)=province
-        p.filter-text Select Riding
-        select.filter-selector
-          each constituency in ["All", ...mps.map(mp => mp.constituency).sort()]
-            option(value=constituency)=constituency
+        label(for="party-select")
+          | Party 
+          select#party-select.filter-selector
+            each party in ["All", ...Array.from(parties, ([party]) => party).sort()]
+              option(value=party)=party
+        label(for="province-select")
+          | Province 
+          select#province-select.filter-selector
+            each province in ["All", ...[...new Set(mps.map(mp => mp.province))].sort()]
+              option(value=province)=province
+        label(for="constituency-select")
+          | Riding 
+          select#constituency-select.filter-selector
+            each constituency in ["All", ...mps.map(mp => mp.constituency).sort()]
+              option(value=constituency)=constituency
+        label(for="only-landlords")
+          input#only-landlords(type="checkbox")
+          | Only landlords
+      #live-region.visually-hidden(aria-live="polite")
       ul.mp-cards-grid
         each mp in mps
           - const mpNameSlug = mp.name.toLowerCase().replaceAll(" ", "_");
-          li.mp-card(data-province=mp.province data-party=mp.party data-constituency=mp.constituency style=`view-transition-name: ${mpNameSlug}`)
+          li.mp-card(data-province=mp.province data-party=mp.party data-constituency=mp.constituency data-landlord=JSON.stringify(mp.landlord) style=`view-transition-name: ${mpNameSlug}`)
             img.mp-portrait(src=`/images/mp_images/${mp.image_name}` alt="" loading="lazy")
             .mp-card-content
-              h2.mp-card-title=mp.name
+              h2.mp-card-title
+                span(translate="no")=mp.name
+                strong(style="font-weight: 500;") #{mp.landlord ? " is" : " is not"} a landlord
               dl.mp-card-details
                 dt.visually-hidden Party
                 dd=mp.party
