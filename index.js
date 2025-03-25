@@ -91,12 +91,14 @@ app.get('/', async (_req, res) => {
         return [landlordTotal[0].total, mpTotal];
     }
 
-    let libCount = await getPartyLandlordCount('Liberal');
-    let conCount = await getPartyLandlordCount('Conservative');
-    let ndpCount = await getPartyLandlordCount('NDP');
-    let blocCount = await getPartyLandlordCount('Bloc Québécois');
-    let greenCount = await getPartyLandlordCount('Green Party');
-    let indyCount = await getPartyLandlordCount('Independent');
+    let [libCount, conCount, ndpCount, blocCount, greenCount, indyCount] = await Promise.all([
+        getPartyLandlordCount('Liberal'),
+        getPartyLandlordCount('Conservative'),
+        getPartyLandlordCount('NDP'),
+        getPartyLandlordCount('Bloc Québécois'),
+        getPartyLandlordCount('Green Party'),
+        getPartyLandlordCount('Independent'),
+    ]);
 
     // TODO: Make this less horrible.
     let totalCount = [libCount[0] + conCount[0] + ndpCount[0] + blocCount[0] + greenCount[0] + indyCount[0], libCount[1] + conCount[1] + ndpCount[1] + blocCount[1] + greenCount[1] + indyCount[1]]
