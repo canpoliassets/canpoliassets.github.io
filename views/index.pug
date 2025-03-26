@@ -12,24 +12,25 @@ block main
     p All data sourced from the #[a(href=prciec.href)=prciec.label]
   details.totals(open)
     summary#table-details-label Landlords by party
-    table.totals-table(aria-labelledby="table-details-label")
-      thead
-        th Party
-        th(aria-sort="descending") #[span(aria-hidden="true") ▾] MPs
-        th Landlords
-        th Percentage
-      tbody
-        each data, party in Object.fromEntries(Array.from(parties).sort((a, b) => b[1].mps - a[1].mps))
-          tr(data-party=party)
-            th(scope="row")=party
-            td=data.mps
-            td=data.landlords
-            td=`${(data.landlords / data.mps * 100).toFixed(2)}%`
-      tfoot
-        th(scope="row") Totals
-        td=totalMps
-        td=totalLandlords
-        td=`${(totalLandlords / totalMps * 100).toFixed(2)}%`
+    .totals-table-wrapper
+      table.totals-table(aria-labelledby="table-details-label")
+        thead
+          th Party
+          th(aria-sort="descending") #[span(aria-hidden="true") ▾]&nbsp;MPs
+          th Landlords
+          th Percentage
+        tbody
+          each data, party in Object.fromEntries(Array.from(parties).sort((a, b) => b[1].mps - a[1].mps))
+            tr(data-party=party)
+              th(scope="row")=party
+              td=data.mps
+              td=data.landlords
+              td=`${(data.landlords / data.mps * 100).toFixed(2)}%`
+        tfoot
+          th(scope="row") Totals
+          td=totalMps
+          td=totalLandlords
+          td=`${(totalLandlords / totalMps * 100).toFixed(2)}%`
   #root
     .mega-container
       .sorting-container
