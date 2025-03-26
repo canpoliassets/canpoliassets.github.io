@@ -1,9 +1,4 @@
 @layer page {
-    body {
-        font-family: system-ui, sans-serif;
-        font-feature-settings: "ss06";
-    }
-
     main {
         line-height: 1.6;
     }
