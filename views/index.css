@@ -37,6 +37,28 @@ label:has(select, input) {
     column-gap: 0.25rem;
 }
 
+@supports selector(::picker(select)) {
+    select, ::picker(select) {
+        appearance: base-select;
+        background-color: Canvas;
+    }
+
+    ::picker(select) {
+        border-radius: 4px;
+        margin-block: 4px;
+    }
+
+    selectedcontent {
+        display: flex;
+        align-items: baseline;
+        gap: 0.25rem;
+    }
+
+    option {
+        gap: 0.25rem;
+    }
+}
+
 input[type="checkbox"] {
     align-self: center;
     margin: 0;
@@ -48,17 +70,18 @@ input[type="checkbox"] {
     margin-block-end: 1rem;
 }
 
+:where([data-party="Bloc Québécois"]) { --party-color: #0088ce; }
+:where([data-party="Conservative"]) { --party-color: #002395; }
+:where([data-party="Green Party"]) { --party-color: #427a26; }
+:where([data-party="Liberal"]) { --party-color: #d71920; }
+:where([data-party="NDP"]) { --party-color: #ff5800; }
+:where([data-party="Independent"]) { --party-color: #c0c0c0; }
+
 .totals-table {
     table-layout: fixed;
     inline-size: 100%;
     font-variant-numeric: tabular-nums;
 
-    tr:where([data-party="Bloc Québécois"]) { --party-color: #0088ce; }
-    tr:where([data-party="Conservative"]) { --party-color: #002395; }
-    tr:where([data-party="Green Party"]) { --party-color: #427a26; }
-    tr:where([data-party="Liberal"]) { --party-color: #d71920; }
-    tr:where([data-party="NDP"]) { --party-color: #ff5800; }
-    tr:where([data-party="Independent"]) { --party-color: #c0c0c0; }
 
     th:first-of-type {
         text-align: start;

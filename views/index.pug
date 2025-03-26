@@ -36,8 +36,13 @@ block main
         label(for="party-select")
           | Party 
           select#party-select.filter-selector
+            button: selectedcontent
             each party in ["All", ...Array.from(parties, ([party]) => party).sort()]
-              option(value=party)=party
+              option(value=party)
+                div(data-party=party style="display: contents")
+                  svg(viewBox="0 0 20 20" width="1em" style="align-self: center")
+                    circle(r="10" cx="10" cy="10" fill="var(--party-color)")
+                  span=party
         label(for="province-select")
           | Province 
           select#province-select.filter-selector
