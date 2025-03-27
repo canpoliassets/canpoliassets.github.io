@@ -74,8 +74,14 @@ app.get("/", (req, res) => {
     res.redirect(307, "/en");
 });
 
+/* Permanent redirects for the old URLs */
+app.get("/about", (_req, res) => res.redirect(301, "/en/about"));
+app.get("/ontario", (_req, res) => res.redirect(301, "/en/on"));
+app.get("/alberta", (_req, res) => res.redirect(301, "/en/ab"));
+app.get("/quebec", (_req, res) => res.redirect(301, "/fr/qc"));
 
 
+/* React API data — will be removed enventually */
 
 app.get('/api/mps-data', async (_req, res) => {
     try {
