@@ -1,6 +1,6 @@
 function MNAPortrait({ mpData: mnaData }) {
     return React.createElement('div', { className: 'mp-list' }, 
-    React.createElement('a', { className: 'mp-container', href: `mna/${mnaData.name.replaceAll(' ','_').toLowerCase()}`},
+    React.createElement('a', { className: 'mp-container', href: `/fr/qc/${mnaData.name.replaceAll(' ','_').toLowerCase()}`},
         React.createElement('div', { className: 'flex' }, 
             React.createElement('div', { className: 'img-container' }, 
                 React.createElement('img', { className: 'mp-img', src: `/images/mna_images/${mnaData.image_name}`, loading: 'lazy' })

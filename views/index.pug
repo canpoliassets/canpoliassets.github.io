@@ -1,4 +1,4 @@
-extends _base-localized
+extends _base
 
 append head
   style: include index.css
@@ -75,4 +75,4 @@ block main
                   dd=mp.constituency
                   dt.visually-hidden=t("province")
                   dd=mp.province
-              a.mp-card-cta(href=`/mp/${mpNameSlug}_${mp.province.toLowerCase()}`) Learn more #[span.visually-hidden about #{mp.name}]
+              a.mp-card-cta(href=`/${lang}/federal/${mp.constituency_slug}`) Learn more #[span.visually-hidden about #{mp.name}]

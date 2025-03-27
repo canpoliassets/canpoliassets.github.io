@@ -71,152 +71,11 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(import.meta.dirname, "./public")));
 
 app.get("/", (req, res) => {
-    res.render("choose-language")
+    res.redirect(307, "/en");
 });
 
-app.get('/ontario', (_req, res) => {
-    res.render('ontario-index');
-});
 
-app.get('/alberta', (_req, res) => {
-    res.render('alberta-index');
-});
 
-app.get('/quebec', (_req, res) => {
-    res.render('quebec-index');
-});
-
-app.get('/about', (_req, res) => {
-    res.render('about', { title: 'About Us' });
-});
-
-app.get('/mp/:name', async (req, res) => {
-    const { name } = req.params;
-
-    let name_split = name.split("_");
-    let province = name_split.pop(0);
-    let final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
-
-    let mp = await MPS.findOne({ name: final_name_sanitized, province: province }, COLLATION);
-    let { home_owner, landlord, investor } = await SHEET_DATA.findOne({ name: final_name_sanitized }, COLLATION);
-    let disclosures = await DISCLOSURES.find({ name: final_name_sanitized }, COLLATION).sort({ category: 1 }).toArray();
-
-    res.render('mp', {
-        title: `${mp.name} | Member Details`,
-        ...mp,
-        home_owner,
-        landlord,
-        investor,
-        groupedDisclosures: groupDisclosures(disclosures),
-    });
-});
-
-app.get('/mpp/:name', async (req, res) => {
-    const { name } = req.params;
-
-    let name_split = name.split("_");
-    let final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
-
-    let mpp = await ONTARIO_MPPS.findOne({ name: final_name_sanitized }, COLLATION);
-    let disclosures = await ONTARIO_DISCLOSURES.find({ name: final_name_sanitized }, COLLATION).sort({ category: 1 }).toArray();
-
-    res.render('ontario-mpp', {
-        title: 'Member Details',
-        ...mpp,
-        groupedDisclosures: groupDisclosures(disclosures),
-        homeowner: homeOwnerText(mpp.name, disclosures),
-        landlord: landlordText(mpp.name, disclosures),
-        investor: investorText(mpp.name, disclosures),
-    });
-});
-
-app.get('/mla/:name', async (req, res) => {
-    const { name } = req.params;
-
-    let name_split = name.split("_");
-    let final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
-
-    let mla = await ALBERTA_MLAS.findOne({ name: final_name_sanitized }, COLLATION);
-    let disclosures = await ALBERTA_DISCLOSURES.find({ name: final_name_sanitized }, COLLATION).sort({ category: 1 }).toArray();
-
-    let homeowner = false;
-    let landlord = false;
-    let investor = false;
-    for (let i=0; i<disclosures.length;++i) {
-        if (disclosures[i]['category'] == 'Property') {
-            homeowner = true;
-        }
-        if (disclosures[i]['content'].includes("Rental Income")) {
-            landlord = true;
-        }
-        if (disclosures[i]['content'].includes("Rental Property")) {
-            landlord = true;
-        }
-        if (disclosures[i]['category'].includes("Securities")) {
-            investor = true;
-        }
-        if (disclosures[i]['category'].includes("Bonds & Certificates")) {
-            investor = true;
-        }
-        if (disclosures[i]['category'].includes("Financial Assets")) {
-            investor = true;
-        }
-    }
-
-    res.render('alberta-mla', {
-        title: 'Member Details',
-        ...mla,
-        groupedDisclosures: groupDisclosures(disclosures),
-        homeowner: albertaTextGenerator(mla['name'], "Homeowner", homeowner),
-        landlord: albertaTextGenerator(mla['name'], "Landlord", landlord),
-        investor: albertaInvestorTextGenerator(mla['name'], investor),
-    });
-});
-
-app.get('/mna/:name', async (req, res) => {
-    const { name } = req.params;
-
-    let name_split = name.split("_");
-    let final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
-
-    let mna = await QUEBEC_MNAS.findOne({ name: final_name_sanitized }, COLLATION);
-    let disclosures = await QUEBEC_DISCLOSURES.find({ name: final_name_sanitized }, COLLATION).sort({ category: 1 }).toArray();
-
-    let homeowner = false;
-    let landlord = false;
-    let investor = false;
-    // Revenu de location = landlord
-    // résidentielles personnelles = homeowner
-    for (let i=0; i<disclosures.length;++i) {
-        if (disclosures[i]['content'].includes('résidentielles personnelles')) {
-            homeowner = true;
-        }
-        if (disclosures[i]['content'].includes("Revenu de location")) {
-            landlord = true;
-        }
-        if (disclosures[i]['category'].includes("Fiducie ou mandat sans droit de regard")) {
-            investor = true;
-        }
-        if (disclosures[i]['category'].includes("Entreprises, personnes, morales, sociétés et associations, mentionnées")) {
-            investor = true;
-        }
-        if (disclosures[i]['category'].includes("Succession ou fiducie, dont la ou le membre est bénéficiaire pour une valeur de 10 000 $ et plus")) {
-            investor = true;
-        }
-        if (disclosures[i]['category'].includes("Succession ou fiducie, dont la ou le membre est bénéficiaire pour une valeur de 10 000 $ et plus")) {
-            investor = true;
-        }
-    }
-
-    res.render('quebec-mna', {
-        title: 'Détails du Membre',
-        ...mna,
-        groupedDisclosures: groupDisclosures(disclosures),
-        homeowner: quebecHomeOwnerGenerator(mna['name'], homeowner),
-        landlord: quebecLandlordGenerator(mna['name'], landlord),
-        investor: quebecInvestorGenerator(mna['name'], investor),
-    });
-});
 
 app.get('/api/mps-data', async (_req, res) => {
     try {
@@ -254,18 +113,11 @@ app.get('/api/mnas-data', async (_req, res) => {
     }
 });
 
-app.get('/robots.txt', function (_req, res) {
-    res.type('text/plain');
-    // res.send("User-agent: *\nDisallow: /");
-    res.send("User-agent: *Allow: /")
-});
-
 // These localized routes need to come after the non-localized ones or static files for now…
 
 app.get("/:lang/*", (req, res, next) => {
     const { lang } = req.params;
-    // TODO: How are errors handled in Express?
-    if (lang !== "en" && lang !== "fr") throw "Unsupported locale";
+    if (lang !== "en" && lang !== "fr") res.status(404).send("Page not found").
     i18n.locale(lang);
 
     Object.assign(res.locals, {
@@ -296,7 +148,21 @@ app.get("/:lang/*", (req, res, next) => {
     next();
 });
 
-app.get('/:lang/', async (_req, res) => {
+/* ABOUT */
+
+app.get('/:lang/about', (req, res) => {
+    const { lang } = req.params
+    if (lang === 'fr') res.redirect(307, '/en/about');
+    res.render('about', { title: 'About Us' });
+});
+
+/* FEDERAL */
+
+app.get('/:lang', async (req, res) => {
+    const { lang } = req.params;
+
+    if (lang === "fr") res.redirect(307, "/en");
+
     let mps = await MPS.aggregate([
         {
             $lookup: {
@@ -344,10 +210,165 @@ app.get('/:lang/', async (_req, res) => {
     res.render('index', { mps, parties, totalMps, totalLandlords });
 });
 
+app.get('/:lang/federal/:constituency', async (req, res) => {
+    const { constituency, lang } = req.params;
+
+    if (lang === "fr") res.redirect(307, `/fr/federal/${name}`)
+
+    let mp = await MPS.findOne({ constituency_slug: constituency }, COLLATION);
+    let { home_owner, landlord, investor } = await SHEET_DATA.findOne({ name: mp.name }, COLLATION);
+    let disclosures = await DISCLOSURES.find({ name: mp.name }, COLLATION).sort({ category: 1 }).toArray();
+
+    res.render('mp', {
+        title: `${mp.name} | Member Details`,
+        ...mp,
+        home_owner,
+        landlord,
+        investor,
+        groupedDisclosures: groupDisclosures(disclosures),
+    });
+});
+
+/* ONTARIO */
+
+app.get('/:lang/on', (req, res) => {
+    const { lang } = req.params
+    if (lang === 'fr') res.redirect(307, '/en/on');
+    res.render('ontario-index');
+});
+
+app.get('/:lang/on/:name', async (req, res) => {
+    const { name, lang } = req.params;
+
+    if (lang === "fr") res.redirect(307, `/en/on/${name}`);
+
+    let name_split = name.split("_");
+    let final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
+
+    let mpp = await ONTARIO_MPPS.findOne({ name: final_name_sanitized }, COLLATION);
+    let disclosures = await ONTARIO_DISCLOSURES.find({ name: final_name_sanitized }, COLLATION).sort({ category: 1 }).toArray();
+
+    res.render('ontario-mpp', {
+        title: 'Member Details',
+        ...mpp,
+        groupedDisclosures: groupDisclosures(disclosures),
+        homeowner: homeOwnerText(mpp.name, disclosures),
+        landlord: landlordText(mpp.name, disclosures),
+        investor: investorText(mpp.name, disclosures),
+    });
+});
+
+/* ALBERTA */
+
+app.get('/:lang/ab', (req, res) => {
+    const { lang } = req.params
+    if (lang === 'fr') res.redirect(307, '/en/ab');
+    res.render('alberta-index');
+});
+
+app.get('/:lang/ab/:name', async (req, res) => {
+    const { name, lang } = req.params;
+
+    if (lang === "fr") res.redirect(307, `/en/ab/${name}`);
+
+    let name_split = name.split("_");
+    let final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
+
+    let mla = await ALBERTA_MLAS.findOne({ name: final_name_sanitized }, COLLATION);
+    let disclosures = await ALBERTA_DISCLOSURES.find({ name: final_name_sanitized }, COLLATION).sort({ category: 1 }).toArray();
+
+    let homeowner = false;
+    let landlord = false;
+    let investor = false;
+    for (let i=0; i<disclosures.length;++i) {
+        if (disclosures[i]['category'] == 'Property') {
+            homeowner = true;
+        }
+        if (disclosures[i]['content'].includes("Rental Income")) {
+            landlord = true;
+        }
+        if (disclosures[i]['content'].includes("Rental Property")) {
+            landlord = true;
+        }
+        if (disclosures[i]['category'].includes("Securities")) {
+            investor = true;
+        }
+        if (disclosures[i]['category'].includes("Bonds & Certificates")) {
+            investor = true;
+        }
+        if (disclosures[i]['category'].includes("Financial Assets")) {
+            investor = true;
+        }
+    }
+
+    res.render('alberta-mla', {
+        title: 'Member Details',
+        ...mla,
+        groupedDisclosures: groupDisclosures(disclosures),
+        homeowner: albertaTextGenerator(mla['name'], "Homeowner", homeowner),
+        landlord: albertaTextGenerator(mla['name'], "Landlord", landlord),
+        investor: albertaInvestorTextGenerator(mla['name'], investor),
+    });
+});
+
+/* QUEBEC */
+
+app.get('/:lang/qc', (req, res) => {
+    const { lang } = req.params
+    if (lang === 'en') res.redirect(307, '/fr/qc');
+    res.render('quebec-index');
+});
+
+app.get('/:lang/qc/:name', async (req, res) => {
+    const { name, lang } = req.params;
+
+    if (lang === "en") res.redirect(307, `/fr/qc/${name}`);
+
+    let name_split = name.split("_");
+    let final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
+
+    let mna = await QUEBEC_MNAS.findOne({ name: final_name_sanitized }, COLLATION);
+        console.log(mna);
+    let disclosures = await QUEBEC_DISCLOSURES.find({ name: final_name_sanitized }, COLLATION).sort({ category: 1 }).toArray();
+
+    let homeowner = false;
+    let landlord = false;
+    let investor = false;
+    // Revenu de location = landlord
+    // résidentielles personnelles = homeowner
+    for (let i=0; i<disclosures.length;++i) {
+        if (disclosures[i]['content'].includes('résidentielles personnelles')) {
+            homeowner = true;
+        }
+        if (disclosures[i]['content'].includes("Revenu de location")) {
+            landlord = true;
+        }
+        if (disclosures[i]['category'].includes("Fiducie ou mandat sans droit de regard")) {
+            investor = true;
+        }
+        if (disclosures[i]['category'].includes("Entreprises, personnes, morales, sociétés et associations, mentionnées")) {
+            investor = true;
+        }
+        if (disclosures[i]['category'].includes("Succession ou fiducie, dont la ou le membre est bénéficiaire pour une valeur de 10 000 $ et plus")) {
+            investor = true;
+        }
+        if (disclosures[i]['category'].includes("Succession ou fiducie, dont la ou le membre est bénéficiaire pour une valeur de 10 000 $ et plus")) {
+            investor = true;
+        }
+    }
+
+    res.render('quebec-mna', {
+        title: 'Détails du Membre',
+        ...mna,
+        groupedDisclosures: groupDisclosures(disclosures),
+        homeowner: quebecHomeOwnerGenerator(mna['name'], homeowner),
+        landlord: quebecLandlordGenerator(mna['name'], landlord),
+        investor: quebecInvestorGenerator(mna['name'], investor),
+    });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-
 
 /* TODO: maybe use `Object.groupBy()`? Not quite the same. */
 function groupDisclosures(disclosures) {

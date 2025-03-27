@@ -17,11 +17,11 @@ html.no-js(lang=`${lang}-ca`)
         mixin nav-link
           a(aria-current=attributes.href === currentPath && "page")&attributes(attributes)
             block
-        +nav-link(href=`/${lang}/`) Home
-        +nav-link(href="/about") About
-        +nav-link(href="/ontario") Ontario MPPS
-        +nav-link(href="/alberta") Alberta MLAS
-        +nav-link(href="/quebec") Quebec MNAS
+        +nav-link(href=`/${lang}`) #{t("siteTitle")}
+        +nav-link(href=`/${lang}/about`) About
+        +nav-link(href=`/${lang}/on`) Ontario MPPs
+        +nav-link(href=`/${lang}/ab`) Alberta MLAs
+        +nav-link(href=`/${lang}/qc`) Quebec MNAs
     main
       block main
     footer.contact
