@@ -1,4 +1,6 @@
-extends _base
+extends _layouts/base
+
+include _mixins/data-source
 
 append head
   include _react-scripts
@@ -7,5 +9,5 @@ append head
 block main
   .title
     h1=t("ab.title")
-    p All data sourced from the #[a(href=t("ethicscommissioner.href"))=t("ethicscommissioner.label")]
+    +data-source("ab")
   #root
