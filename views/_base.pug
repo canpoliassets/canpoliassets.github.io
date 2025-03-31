@@ -4,7 +4,7 @@ html.no-js(lang=`${lang}-ca`)
     block head
       meta(charset="utf-8")
       meta(name="viewport" content="width=device-width,initial-scale=1")
-      title=title ? `${title} | ${siteTitle}` : siteTitle
+      title=title ? `${title} | ${t("siteTitle")}` : t("siteTitle")
       script document.documentElement.classList.remove("no-js")
       link(rel="preconnect" href="https://fonts.googleapis.com")
       link(rel="preconnect" href="https://fonts.gstatic.com" crossorigin)
@@ -17,7 +17,7 @@ html.no-js(lang=`${lang}-ca`)
         mixin nav-link
           a(aria-current=attributes.href === currentPath && "page")&attributes(attributes)
             block
-        +nav-link(href=`/${lang}`) #{t("siteTitle")}
+        +nav-link(href=`/${lang}`) Home
         +nav-link(href=`/${lang}/about`) About
         +nav-link(href=`/${lang}/on`) Ontario MPPs
         +nav-link(href=`/${lang}/ab`) Alberta MLAs
@@ -25,5 +25,5 @@ html.no-js(lang=`${lang}-ca`)
     main
       block main
     footer.contact
-      address Contact: #{contactEmail}
+      address Contact: #{t("contactEmail")}
     block foot

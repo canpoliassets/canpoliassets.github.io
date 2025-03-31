@@ -7,9 +7,6 @@ import rosetta from "rosetta";
 import en from "./translations/en.json" with { type: "json" };
 import fr from "./translations/fr.json" with { type: "json" };
 
-// Initialize localization
-const i18n = rosetta({ en, fr });
-
 const uri = process.env.MONGO_URI;
 
 const dbClient = new MongoClient(uri);
@@ -34,45 +31,17 @@ const app = express();
 
 app.set('view engine', 'pug');
 
-// TODO: this whole block can be removed once all pages are localized as it’s
-// DUPLICATED elsewhere (so keep it up-to-date too!
-i18n.locale("en");
-Object.assign(app.locals, {
-    t: i18n.t,
-    lang: "en",
-    siteTitle: i18n.t("siteTitle"),
-    ontarioSiteTitle: "Is My MPP a Landlord?",
-    albertaSiteTitle: "Is My MLA a Landlord?",
-    quebecSiteTitle: "Mon député est-il un propriétaire?",
-    contactEmail: "mplandlordcheck [ at ] protonmail [ dot ] com",
-    prciec: {
-        href: "https://prciec-rpccie.parl.gc.ca/EN/PublicRegistries/Pages/PublicRegistry.aspx",
-        label: "Office of Conflict of Interest and Ethics Commissioner",
-    },
-    pds: {
-        href: "https://pds.oico.on.ca/Pages/Public/PublicDisclosures.aspx",
-        label: "Office of the Integrity Commissioner",
-    },
-    ethicscommissioner: {
-        href: "https://www.ethicscommissioner.ab.ca/disclosure/mla-public-disclosure/",
-        label: "Office of the Ethics Commissioner"
-    },
-    ced_qc: {
-        href: "https://www.ced-qc.ca/fr/registres-publics/sommaires-des-declarations-des-interets-personnels/22-membres-du-conseil-executif-et-deputes",
-        label: "Sommaires des déclarations des intérêts personnels",
-    },
-});
-
 app.use((req, res, next) => {
+    // Initialize localization
+    req.i18n = rosetta({ en, fr });
+    res.locals.t = req.i18n.t.bind(req.i18n),
     res.locals.currentPath = req.path;
     next();
 });
 
 app.use(express.static(path.join(import.meta.dirname, "./public")));
 
-app.get("/", (req, res) => {
-    res.redirect(307, "/en");
-});
+app.get("/", (req, res) => res.redirect(307, "/en"));
 
 /* Permanent redirects for the old URLs */
 app.get("/about", (_req, res) => res.redirect(301, "/en/about"));
@@ -121,35 +90,12 @@ app.get('/api/mnas-data', async (_req, res) => {
 
 // These localized routes need to come after the non-localized ones or static files for now…
 
-app.get("/:lang/*", (req, res, next) => {
+app.use("/:lang", (req, res, next) => {
     const { lang } = req.params;
-    if (lang !== "en" && lang !== "fr") res.status(404).send("Page not found").
-    i18n.locale(lang);
+    if (lang !== "en" && lang !== "fr") res.status(404).send("Page not found");
 
-    Object.assign(res.locals, {
-        lang,
-        siteTitle: i18n.t("siteTitle"),
-        ontarioSiteTitle: "Is My MPP a Landlord?",
-        albertaSiteTitle: "Is My MLA a Landlord?",
-        quebecSiteTitle: "Mon député est-il un propriétaire?",
-        contactEmail: "mplandlordcheck [ at ] protonmail [ dot ] com",
-        prciec: {
-            href: "https://prciec-rpccie.parl.gc.ca/EN/PublicRegistries/Pages/PublicRegistry.aspx",
-            label: "Office of Conflict of Interest and Ethics Commissioner",
-        },
-        pds: {
-            href: "https://pds.oico.on.ca/Pages/Public/PublicDisclosures.aspx",
-            label: "Office of the Integrity Commissioner",
-        },
-        ethicscommissioner: {
-            href: "https://www.ethicscommissioner.ab.ca/disclosure/mla-public-disclosure/",
-            label: "Office of the Ethics Commissioner"
-        },
-        ced_qc: {
-            href: "https://www.ced-qc.ca/fr/registres-publics/sommaires-des-declarations-des-interets-personnels/22-membres-du-conseil-executif-et-deputes",
-            label: "Sommaires des déclarations des intérêts personnels",
-        },
-    });
+    req.i18n.locale(lang);
+    res.locals.lang = lang;
 
     next();
 });
@@ -240,7 +186,7 @@ app.get('/:lang/federal/:constituency', async (req, res) => {
 app.get('/:lang/on', (req, res) => {
     const { lang } = req.params
     if (lang === 'fr') res.redirect(307, '/en/on');
-    res.render('ontario-index');
+    res.render('ontario-index', { title: req.i18n.t("on.title") });
 });
 
 app.get('/:lang/on/:name', async (req, res) => {
@@ -269,7 +215,7 @@ app.get('/:lang/on/:name', async (req, res) => {
 app.get('/:lang/ab', (req, res) => {
     const { lang } = req.params
     if (lang === 'fr') res.redirect(307, '/en/ab');
-    res.render('alberta-index');
+    res.render('alberta-index', { title: req.i18n.t("ab.title") });
 });
 
 app.get('/:lang/ab/:name', async (req, res) => {
@@ -322,7 +268,7 @@ app.get('/:lang/ab/:name', async (req, res) => {
 app.get('/:lang/qc', (req, res) => {
     const { lang } = req.params
     if (lang === 'en') res.redirect(307, '/fr/qc');
-    res.render('quebec-index');
+    res.render('quebec-index', { title: req.i18n.t("qc.title") });
 });
 
 app.get('/:lang/qc/:name', async (req, res) => {
@@ -334,7 +280,6 @@ app.get('/:lang/qc/:name', async (req, res) => {
     let final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
 
     let mna = await QUEBEC_MNAS.findOne({ name: final_name_sanitized }, COLLATION);
-        console.log(mna);
     let disclosures = await QUEBEC_DISCLOSURES.find({ name: final_name_sanitized }, COLLATION).sort({ category: 1 }).toArray();
 
     let homeowner = false;

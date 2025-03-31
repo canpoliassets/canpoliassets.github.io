@@ -8,8 +8,8 @@ append foot
   
 block main
   .title
-    h1=siteTitle
-    p !{t("allDataSourcedFrom", { sourceLabel: prciec.label, sourceLink: prciec.href })}
+    h1=t("siteTitle")
+    p !{t("allDataSourcedFrom", { sourceLabel: t("prciec.label"), sourceLink: t("prciec.href") })}
   details.totals(open)
     summary#table-details-label Landlords by party
     .totals-table-wrapper

@@ -1,9 +1,29 @@
 {
-    "siteTitle": "Est-ce que mon député est propriétaire?",
+    "siteTitle": "Mon député est-il un propriétaire?",
+    "ab": { "title": "Is My MLA a Landlord?" },
+    "on": { "title": "Is My MPP a Landlord?" },
+    "qc": { "title": "Mon député est-il un propriétaire?" },
     "allDataSourcedFrom": "Toutes les données proviennent du <a href=\"{{sourceLink}}\">{{sourceLabel}}</a>",
+    "contactEmail": "mplandlordcheck [ at ] protonmail [ dot ] com",
     "all": "Toutes",
     "party": "Parti",
     "province": "Province",
     "constituency": "Circonscription",
-    "home": "Home"
+    "home": "Home",
+    "prciec": {
+        "href": "https://prciec-rpccie.parl.gc.ca/EN/PublicRegistries/Pages/PublicRegistry.aspx",
+        "label": "Office of Conflict of Interest and Ethics Commissioner"
+    },
+    "pds": {
+        "href": "https://pds.oico.on.ca/Pages/Public/PublicDisclosures.aspx",
+        "label": "Office of the Integrity Commissioner"
+    },
+    "ethicscommissioner": {
+        "href": "https://www.ethicscommissioner.ab.ca/disclosure/mla-public-disclosure/",
+        "label": "Office of the Ethics Commissioner"
+    },
+    "ced_qc": {
+        "href": "https://www.ced-qc.ca/fr/registres-publics/sommaires-des-declarations-des-interets-personnels/22-membres-du-conseil-executif-et-deputes",
+        "label": "Sommaires des déclarations des intérêts personnels"
+    }
 }
