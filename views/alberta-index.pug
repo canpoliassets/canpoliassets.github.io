@@ -1,11 +1,13 @@
-extends _base
+extends _layouts/base
+
+include _mixins/data-source
 
 append head
   include _react-scripts
-  script(type="module" src="js/alberta-index.js")
+  script(type="module" src="/js/alberta-index.js")
 
 block main
   .title
-    h1=albertaSiteTitle
-    p All data sourced from the #[a(href=ethicscommissioner.href)=ethicscommissioner.label]
+    h1=t("ab.title")
+    +data-source("ab")
   #root

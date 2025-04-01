@@ -1,11 +1,13 @@
-extends _base
+extends _layouts/base
+
+include _mixins/data-source
 
 append head
   include _react-scripts
-  script(type="module" src="js/quebec-index.js")
+  script(type="module" src="/js/quebec-index.js")
 
 block main
   .title
-    h1=quebecSiteTitle
-    p Toutes les données proviennent de #[a(href=ced_qc.href)=ced_qc.label]
+    h1=t("qc.title")
+    +data-source("qc")
   #root

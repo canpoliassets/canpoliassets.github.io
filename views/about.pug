@@ -1,4 +1,4 @@
-extends _base
+extends _layouts/base
 
 append head
   link(rel="stylesheet" href="/index.css")
@@ -12,10 +12,10 @@ block main
   section.disclaimer
     h2#disclaimer Disclaimer
     p This site is a work-in-progress and updated regularly. While we strive for accuracy, there may be errors in the data.
-    p If you notice any inaccuracies, please contact #[u=contactEmail] or Isaac Peltz.
+    p If you notice any inaccuracies, please contact #[u=t("contactEmail")] or Isaac Peltz.
   section.methodology
     h2#methodology Methodology
-    p Federal data is sourced from a public registry which is maintained by the #[a(href=prciec.href)=prciec.label]. This registry is updated yearly for current members of parliament when there is a relevant change in their summary statements, public declarations relating to gifts or other advantages, travel, outside activities and certain assets and liabilities, and other declarations as necessary.
+    p Federal data is sourced from a public registry which is maintained by the #[a(href=t("federal.dataSource.href"))=t("federal.dataSource.label")]. This registry is updated yearly for current members of parliament when there is a relevant change in their summary statements, public declarations relating to gifts or other advantages, travel, outside activities and certain assets and liabilities, and other declarations as necessary.
     p We regularly update this site as new data is released. Please refer to the relevant public registry for further information.
     p For Provincial data, we use similar public registries which are listed accordingly on the relevant pages.
   section.terminology

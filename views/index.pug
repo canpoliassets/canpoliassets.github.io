@@ -1,4 +1,6 @@
-extends _base
+extends _layouts/base
+
+include _mixins/data-source
 
 append head
   style: include index.css
@@ -8,8 +10,8 @@ append foot
   
 block main
   .title
-    h1=siteTitle
-    p All data sourced from the #[a(href=prciec.href)=prciec.label]
+    h1=t("siteTitle")
+    +data-source("federal")
   details.totals(open)
     summary#table-details-label Landlords by party
     .totals-table-wrapper
@@ -35,24 +37,24 @@ block main
     .mega-container
       .sorting-container
         label(for="party-select")
-          | Party 
+          | #{t("party")}
           select#party-select.filter-selector
             button: selectedcontent
-            each party in ["All", ...Array.from(parties, ([party]) => party).sort()]
+            each party in [t("all"), ...Array.from(parties, ([party]) => party).sort()]
               option(value=party)
                 div(data-party=party style="display: contents")
                   svg(viewBox="0 0 20 20" width="1em" style="align-self: center")
                     circle(r="10" cx="10" cy="10" fill="var(--party-color)")
                   span=party
         label(for="province-select")
-          | Province 
+          | #{t("province")}
           select#province-select.filter-selector
-            each province in ["All", ...[...new Set(mps.map(mp => mp.province))].sort()]
+            each province in [t("all"), ...[...new Set(mps.map(mp => mp.province))].sort()]
               option(value=province)=province
         label(for="constituency-select")
-          | Riding 
+          | #{t("constituency")} 
           select#constituency-select.filter-selector
-            each constituency in ["All", ...mps.map(mp => mp.constituency).sort()]
+            each constituency in [t("all"), ...mps.map(mp => mp.constituency).sort()]
               option(value=constituency)=constituency
         label(for="only-landlords")
           input#only-landlords(type="checkbox")
@@ -68,11 +70,11 @@ block main
                 span(translate="no")=mp.name
                 strong(style="font-weight: 500;") #{mp.landlord ? " is" : " is not known to be"} a landlord
               dl.mp-card-details
-                dt.visually-hidden Party
+                dt.visually-hidden=t("party")
                 dd=mp.party
                 .mp-constituency-and-province
-                  dt.visually-hidden Constituency
+                  dt.visually-hidden=t("constituency")
                   dd=mp.constituency
-                  dt.visually-hidden Province
+                  dt.visually-hidden=t("province")
                   dd=mp.province
-              a.mp-card-cta(href=`mp/${mpNameSlug}_${mp.province.toLowerCase()}`) Learn more #[span.visually-hidden about #{mp.name}]
+              a.mp-card-cta(href=`/${lang}/federal/${mp.constituency_slug}`) Learn more #[span.visually-hidden about #{mp.name}]

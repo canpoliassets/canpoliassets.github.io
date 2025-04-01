@@ -1,6 +1,11 @@
 import express from "express";
 import { MongoClient } from "mongodb";
 import path from "path";
+import rosetta from "rosetta";
+
+/* Translations */
+import en from "./translations/en.json" with { type: "json" };
+import fr from "./translations/fr.json" with { type: "json" };
 
 const uri = process.env.MONGO_URI;
 
@@ -26,36 +31,90 @@ const app = express();
 
 app.set('view engine', 'pug');
 
-app.locals.siteTitle = 'Is My MP a Landlord?';
-app.locals.ontarioSiteTitle = 'Is My MPP a Landlord?';
-app.locals.albertaSiteTitle = 'Is My MLA a Landlord?';
-app.locals.quebecSiteTitle = 'Mon député est-il un propriétaire?';
-app.locals.contactEmail = 'mplandlordcheck [ at ] protonmail [ dot ] com';
-app.locals.prciec = {
-    href: 'https://prciec-rpccie.parl.gc.ca/EN/PublicRegistries/Pages/PublicRegistry.aspx',
-    label: 'Office of Conflict of Interest and Ethics Commissioner',
-};
-app.locals.pds = {
-    href: 'https://pds.oico.on.ca/Pages/Public/PublicDisclosures.aspx',
-    label: 'Office of the Integrity Commissioner',
-};
-app.locals.ethicscommissioner = {
-    href: 'https://www.ethicscommissioner.ab.ca/disclosure/mla-public-disclosure/',
-    label: 'Office of the Ethics Commissioner'
-}
-app.locals.ced_qc = {
-    href: 'https://www.ced-qc.ca/fr/registres-publics/sommaires-des-declarations-des-interets-personnels/22-membres-du-conseil-executif-et-deputes',
-    label: 'Sommaires des déclarations des intérêts personnels'
-}
-
 app.use((req, res, next) => {
+    // Initialize localization
+    req.i18n = rosetta({ en, fr });
+    res.locals.t = req.i18n.t.bind(req.i18n),
     res.locals.currentPath = req.path;
-    // Set the locale here
-    res.locals.lang = 'en';
     next();
 });
 
-app.get('/', async (_req, res) => {
+app.use(express.static(path.join(import.meta.dirname, "./public")));
+
+app.get("/", (req, res) => res.redirect(307, "/en"));
+
+/* Permanent redirects for the old URLs */
+app.get("/about", (_req, res) => res.redirect(301, "/en/about"));
+app.get("/ontario", (_req, res) => res.redirect(301, "/en/on"));
+app.get("/alberta", (_req, res) => res.redirect(301, "/en/ab"));
+app.get("/quebec", (_req, res) => res.redirect(301, "/fr/qc"));
+
+
+/* React API data — will be removed enventually */
+
+app.get('/api/mps-data', async (_req, res) => {
+    try {
+        let allMPS = await MPS.find({ }).sort({ name: 1 }).toArray();
+        res.json({ mps: allMPS});
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching items' });
+    }
+});
+
+app.get('/api/mpps-data', async (_req, res) => {
+    try {
+        let allMPPS = await ONTARIO_MPPS.find({ }).sort({ name: 1 }).toArray();
+        res.json({ mpps: allMPPS });
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching items' });
+    }
+});
+
+app.get('/api/mlas-data', async (_req, res) => {
+    try {
+        let allMLAS = await ALBERTA_MLAS.find({ }).sort({ name: 1 }).toArray();
+        res.json({ mlas: allMLAS });
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching items' });
+    }
+});
+
+app.get('/api/mnas-data', async (_req, res) => {
+    try {
+        let allMNAS = await QUEBEC_MNAS.find({ }).sort({ name: 1 }).toArray();
+        res.json({ mnas: allMNAS });
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching items' });
+    }
+});
+
+// These localized routes need to come after the non-localized ones or static files for now…
+
+app.use("/:lang", (req, res, next) => {
+    const { lang } = req.params;
+    if (lang !== "en" && lang !== "fr") res.status(404).send("Page not found");
+
+    req.i18n.locale(lang);
+    res.locals.lang = lang;
+
+    next();
+});
+
+/* ABOUT */
+
+app.get('/:lang/about', (req, res) => {
+    const { lang } = req.params
+    if (lang === 'fr') res.redirect(307, '/en/about');
+    res.render('about', { title: 'About Us' });
+});
+
+/* FEDERAL */
+
+app.get('/:lang', async (req, res) => {
+    const { lang } = req.params;
+
+    if (lang === "fr") res.redirect(307, "/en");
+
     let mps = await MPS.aggregate([
         {
             $lookup: {
@@ -103,32 +162,14 @@ app.get('/', async (_req, res) => {
     res.render('index', { mps, parties, totalMps, totalLandlords });
 });
 
-app.get('/ontario', (_req, res) => {
-    res.render('ontario-index');
-});
+app.get('/:lang/federal/:constituency', async (req, res) => {
+    const { constituency, lang } = req.params;
 
-app.get('/alberta', (_req, res) => {
-    res.render('alberta-index');
-});
+    if (lang === "fr") res.redirect(307, `/fr/federal/${name}`)
 
-app.get('/quebec', (_req, res) => {
-    res.render('quebec-index');
-});
-
-app.get('/about', (_req, res) => {
-    res.render('about', { title: 'About Us' });
-});
-
-app.get('/mp/:name', async (req, res) => {
-    const { name } = req.params;
-
-    let name_split = name.split("_");
-    let province = name_split.pop(0);
-    let final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
-
-    let mp = await MPS.findOne({ name: final_name_sanitized, province: province }, COLLATION);
-    let { home_owner, landlord, investor } = await SHEET_DATA.findOne({ name: final_name_sanitized }, COLLATION);
-    let disclosures = await DISCLOSURES.find({ name: final_name_sanitized }, COLLATION).sort({ category: 1 }).toArray();
+    let mp = await MPS.findOne({ constituency_slug: constituency }, COLLATION);
+    let { home_owner, landlord, investor } = await SHEET_DATA.findOne({ name: mp.name }, COLLATION);
+    let disclosures = await DISCLOSURES.find({ name: mp.name }, COLLATION).sort({ category: 1 }).toArray();
 
     res.render('mp', {
         title: `${mp.name} | Member Details`,
@@ -140,8 +181,18 @@ app.get('/mp/:name', async (req, res) => {
     });
 });
 
-app.get('/mpp/:name', async (req, res) => {
-    const { name } = req.params;
+/* ONTARIO */
+
+app.get('/:lang/on', (req, res) => {
+    const { lang } = req.params
+    if (lang === 'fr') res.redirect(307, '/en/on');
+    res.render('ontario-index', { title: req.i18n.t("on.title") });
+});
+
+app.get('/:lang/on/:name', async (req, res) => {
+    const { name, lang } = req.params;
+
+    if (lang === "fr") res.redirect(307, `/en/on/${name}`);
 
     let name_split = name.split("_");
     let final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
@@ -159,8 +210,18 @@ app.get('/mpp/:name', async (req, res) => {
     });
 });
 
-app.get('/mla/:name', async (req, res) => {
-    const { name } = req.params;
+/* ALBERTA */
+
+app.get('/:lang/ab', (req, res) => {
+    const { lang } = req.params
+    if (lang === 'fr') res.redirect(307, '/en/ab');
+    res.render('alberta-index', { title: req.i18n.t("ab.title") });
+});
+
+app.get('/:lang/ab/:name', async (req, res) => {
+    const { name, lang } = req.params;
+
+    if (lang === "fr") res.redirect(307, `/en/ab/${name}`);
 
     let name_split = name.split("_");
     let final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
@@ -202,8 +263,18 @@ app.get('/mla/:name', async (req, res) => {
     });
 });
 
-app.get('/mna/:name', async (req, res) => {
-    const { name } = req.params;
+/* QUEBEC */
+
+app.get('/:lang/qc', (req, res) => {
+    const { lang } = req.params
+    if (lang === 'en') res.redirect(307, '/fr/qc');
+    res.render('quebec-index', { title: req.i18n.t("qc.title") });
+});
+
+app.get('/:lang/qc/:name', async (req, res) => {
+    const { name, lang } = req.params;
+
+    if (lang === "en") res.redirect(307, `/fr/qc/${name}`);
 
     let name_split = name.split("_");
     let final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
@@ -247,54 +318,8 @@ app.get('/mna/:name', async (req, res) => {
     });
 });
 
-app.use(express.static(path.join(import.meta.dirname, "./public")));
-
-app.get('/api/mps-data', async (_req, res) => {
-    try {
-        let allMPS = await MPS.find({ }).sort({ name: 1 }).toArray();
-        res.json({ mps: allMPS});
-    } catch (error) {
-        res.status(500).json({ error: 'Error fetching items' });
-    }
-});
-
-app.get('/api/mpps-data', async (_req, res) => {
-    try {
-        let allMPPS = await ONTARIO_MPPS.find({ }).sort({ name: 1 }).toArray();
-        res.json({ mpps: allMPPS });
-    } catch (error) {
-        res.status(500).json({ error: 'Error fetching items' });
-    }
-});
-
-app.get('/api/mlas-data', async (_req, res) => {
-    try {
-        let allMLAS = await ALBERTA_MLAS.find({ }).sort({ name: 1 }).toArray();
-        res.json({ mlas: allMLAS });
-    } catch (error) {
-        res.status(500).json({ error: 'Error fetching items' });
-    }
-});
-
-app.get('/api/mnas-data', async (_req, res) => {
-    try {
-        let allMNAS = await QUEBEC_MNAS.find({ }).sort({ name: 1 }).toArray();
-        res.json({ mnas: allMNAS });
-    } catch (error) {
-        res.status(500).json({ error: 'Error fetching items' });
-    }
-});
-
-app.get('/robots.txt', function (_req, res) {
-    res.type('text/plain');
-    // res.send("User-agent: *\nDisallow: /");
-    res.send("User-agent: *Allow: /")
-});
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-
 
 /* TODO: maybe use `Object.groupBy()`? Not quite the same. */
 function groupDisclosures(disclosures) {
