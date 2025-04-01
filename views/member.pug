@@ -2,13 +2,13 @@ extends _layouts/base
 
 block main
   .title
-    h1=t("ab.title")
+    h1=siteTitle
   .max
     .centered
       .mp-container-thin
         .flex
           .img-container
-            img.mp-img(src=`/images/ab_mla_images/${image_name}` alt="")
+            img.mp-img(src=`/images/${portraitPath}/${image_name}` alt="")
           .txt-container
             .top-tile
               p.mp-name=name
