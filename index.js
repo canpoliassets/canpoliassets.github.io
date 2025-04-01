@@ -49,52 +49,15 @@ app.get("/ontario", (_req, res) => res.redirect(301, "/en/on"));
 app.get("/alberta", (_req, res) => res.redirect(301, "/en/ab"));
 app.get("/quebec", (_req, res) => res.redirect(301, "/fr/qc"));
 
-
-/* React API data — will be removed enventually */
-
-app.get('/api/mps-data', async (_req, res) => {
-    try {
-        let allMPS = await MPS.find({ }).sort({ name: 1 }).toArray();
-        res.json({ mps: allMPS});
-    } catch (error) {
-        res.status(500).json({ error: 'Error fetching items' });
-    }
-});
-
-app.get('/api/mpps-data', async (_req, res) => {
-    try {
-        let allMPPS = await ONTARIO_MPPS.find({ }).sort({ name: 1 }).toArray();
-        res.json({ mpps: allMPPS });
-    } catch (error) {
-        res.status(500).json({ error: 'Error fetching items' });
-    }
-});
-
-app.get('/api/mlas-data', async (_req, res) => {
-    try {
-        let allMLAS = await ALBERTA_MLAS.find({ }).sort({ name: 1 }).toArray();
-        res.json({ mlas: allMLAS });
-    } catch (error) {
-        res.status(500).json({ error: 'Error fetching items' });
-    }
-});
-
-app.get('/api/mnas-data', async (_req, res) => {
-    try {
-        let allMNAS = await QUEBEC_MNAS.find({ }).sort({ name: 1 }).toArray();
-        res.json({ mnas: allMNAS });
-    } catch (error) {
-        res.status(500).json({ error: 'Error fetching items' });
-    }
-});
-
 // These localized routes need to come after the non-localized ones or static files for now…
 
 app.use("/:lang", (req, res, next) => {
     const { lang } = req.params;
-    if (lang !== "en" && lang !== "fr") res.status(404).send("Page not found");
+    if (lang !== "en" && lang !== "fr") return res.status(404).send("Page not found");
 
     req.i18n.locale(lang);
+    req.collator = new Intl.Collator(`${lang}-ca`).compare;
+
     res.locals.lang = lang;
 
     next();
@@ -102,9 +65,9 @@ app.use("/:lang", (req, res, next) => {
 
 /* ABOUT */
 
-app.get('/:lang/about', (req, res) => {
+app.get(['/:lang/about', "/:lang/a-propos"], (req, res) => {
     const { lang } = req.params
-    if (lang === 'fr') res.redirect(307, '/en/about');
+    if (lang === "fr") return res.redirect(307, "/en/about");
     res.render('about', { title: 'About Us' });
 });
 
@@ -113,9 +76,11 @@ app.get('/:lang/about', (req, res) => {
 app.get('/:lang', async (req, res) => {
     const { lang } = req.params;
 
-    if (lang === "fr") res.redirect(307, "/en");
+    function getProvinceKey(province) {
+        for (const key in en.provinces) if (en.provinces[key] === province) return key;
+    }
 
-    let mps = await MPS.aggregate([
+    let members = await MPS.aggregate([
         {
             $lookup: {
                 from: "sheet_data",
@@ -124,48 +89,49 @@ app.get('/:lang', async (req, res) => {
                 as: "sheet_data_matches"
             },
         },
-        {
-            $replaceRoot: {
-                newRoot: {
-                    $mergeObjects: [ { $arrayElemAt: [ "$sheet_data_matches", 0 ] }, "$$ROOT" ],
-                },
-            },
-        },
-        {
-            $project: { sheet_data_matches: 0 },
-        },
-    ]).sort({ name: 1 }).toArray();
-
-    const parties = new Map();
-    let totalMps = 0;
-    let totalLandlords = 0;
-
-    for (const mp of mps) {
-        mp.landlord = mp.landlord === "Y";
-        mp.homeowner = mp.home_owner === "Y";
-        delete mp.home_owner;
-        mp.investor = mp.investor === "Y";
-
-        if (mp.party != null) {
-            const party = parties.get(mp.party) ?? parties.set(mp.party, { mps: 0, landlords: 0 }).get(mp.party);
-
-            party.mps++;
-            totalMps++;
-
-            if (mp.landlord) {
-                party.landlords++;
-                totalLandlords++;
-            }
+    ]).map(member => {
+        for (const match of member.sheet_data_matches) {
+            if (match.landlord === "Y") member.landlord = true;
+            if (match.homeowner === "Y") member.homeowner = true;
+            if (match.investor === "Y") member.investor = true;
         }
-    }
+        member.province = getProvinceKey(member.province);
 
-    res.render('index', { mps, parties, totalMps, totalLandlords });
+        return member;
+    }).sort({ name: 1 }).toArray();
+
+    const parties = Array.from(new Set(members.map(member => member.party)));
+    // We’re taking advantage of the fact that this list is sorted by the
+    // localized value in the respective file. If that changes, we should use
+    // the collation function here to sort.
+    const provinces = req.i18n.t("provinces");
+    const constituenciesByProvince = Object.groupBy(
+        members
+            .map(member => ({
+                name: member.constituency,
+                province: member.province,
+            }))
+            .sort((a, b) => req.collator(a.province, b.province)),
+        // Group by province
+        entry => entry.province,
+    );
+
+    res.render('member-list', {
+        title: req.i18n.t("siteTitle"),
+        scope: "federal",
+        portraitPath: "mp_images",
+        members,
+        provinces,
+        constituenciesByProvince,
+        parties,
+        notices: [],
+    });
 });
 
 app.get('/:lang/federal/:constituency', async (req, res) => {
     const { constituency, lang } = req.params;
 
-    if (lang === "fr") res.redirect(307, `/fr/federal/${name}`)
+    if (lang === "fr") return res.redirect(307, `/en/federal/${constituency}`)
 
     let mp = await MPS.findOne({ constituency_slug: constituency }, COLLATION);
     let { home_owner, landlord, investor } = await SHEET_DATA.findOne({ name: mp.name }, COLLATION);
@@ -181,53 +147,151 @@ app.get('/:lang/federal/:constituency', async (req, res) => {
     });
 });
 
-/* ONTARIO */
+const PROVINCES = {
+    ab: {
+        collection: ALBERTA_MLAS,
+        portraitPath: "ab_mla_images",
+        disclosureCollection: "alberta_disclosures",
+        mapDisclosures: member => {
+            for (const disclosure of member.disclosures) {
+                // TODO: use a regex
+                if (member.homeowner = disclosure.content === "property") member.homeowner = true;
+                if (disclosure.content.includes("Rental Property") || disclosure.content.includes("Rental Income")) member.landlord = true;
+                if (
+                    disclosure.category.includes("Securities")
+                    || disclosure.category.includes("Bonds & Certificates")
+                    || disclosure.category.includes("Financial Assets")
+                ) member.investor = true;
+            }
 
-app.get('/:lang/on', (req, res) => {
-    const { lang } = req.params
-    if (lang === 'fr') res.redirect(307, '/en/on');
-    res.render('ontario-index', { title: req.i18n.t("on.title") });
+            return member;
+        },
+    },
+    on: {
+        collection: ONTARIO_MPPS,
+        portraitPath: "mpp_images",
+        disclosureCollection: "ontario_disclosures",
+        mapDisclosures: member => {
+            for (const disclosure of member.disclosures) {
+                if (
+                    disclosure.category === "Assets" && (
+                        disclosure.content.includes("securities")
+                        || disclosure.content.includes("Shares")
+                        || disclosure.content.includes("Investments and registered accounts")
+                    )
+                ) member.homeowner = true;
+                if (
+                    disclosure.category === "Income" &&
+                    disclosure.content.includes("Rental")
+                ) member.landlord = true;
+                if (
+                    (
+                        disclosure.category === "Assets" && (
+                            disclosure.content.includes("securities")
+                            || disclosure.content.includes("Shares")
+                            || disclosure.content.includes("Investments and registered accounts")
+                        )
+                    ) || (
+                        disclosure.category === "Income" && disclosure.content.includes("Investment")
+                    )
+                ) member.investor = true;
+            }
+            return member;
+        },
+    },
+    qc: {
+        collection: QUEBEC_MNAS,
+        portraitPath: "mna_images",
+        disclosureCollection: "quebec_disclosures",
+        mapDisclosures: member => {
+            for (const disclosure of member.disclosures) {
+                if (disclosure.content.includes('résidentielles personnelles')) member.homeowner = true;
+                if (disclosure.content.includes("Revenu de location")) member.landlord = true;
+                if (
+                    disclosure.category.includes("Fiducie ou mandat sans droit de regard") ||
+                    disclosure.category.includes("Entreprises, personnes, morales, sociétés et associations, mentionnées") ||
+                    disclosure.category.includes("Succession ou fiducie, dont la ou le membre est bénéficiaire pour une valeur de 10 000 $ et plus")
+                ) member.investor = true;
+            }
+            return member;
+        },
+    },
+};
+
+app.get("/:lang/:province", async (req, res, next) => {
+    const { lang, province } = req.params;
+
+    const DATA = PROVINCES[province];
+
+    if (!DATA) return res.status(404).send("Page not found");
+
+    const members = await DATA.collection.aggregate([
+        {
+            $lookup: {
+                from: DATA.disclosureCollection,
+                localField: "name",
+                foreignField: "name",
+                as: "disclosures",
+            },
+        },
+    ]).map(DATA.mapDisclosures).sort({ name: 1 }).toArray();
+
+    const parties = Array.from(new Set(members.map(member => member.party.startsWith("Indépendant") ? "Indépendant" : member.party)));
+
+    const constituencies = members
+        .map(member => ({ name: member.constituency, slug: member.constituency_slug }))
+        .sort((a, b) => req.collator(a.name, b.name));
+
+    res.render("member-list", {
+        title: req.i18n.t(`${province}.title`),
+        scope: province,
+        portraitPath: DATA.portraitPath,
+        members,
+        parties,
+        constituencies,
+        notices: req.i18n.t(`${province}.notices`) ?? [],
+    });
 });
 
-app.get('/:lang/on/:name', async (req, res) => {
-    const { name, lang } = req.params;
+/* TODO: consolidate all individual member pages */
+//app.get("/:lang/:province/:constituency", async (req, res, next) => {
+//    const { lang, province, constituency } = req.params;
+//
+//    res.render("member", {});
+//});
 
-    if (lang === "fr") res.redirect(307, `/en/on/${name}`);
+/* ONTARIO */
 
-    let name_split = name.split("_");
-    let final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
+app.get('/:lang/on/:constituency', async (req, res) => {
+    const { lang, constituency: constituency_slug } = req.params;
 
-    let mpp = await ONTARIO_MPPS.findOne({ name: final_name_sanitized }, COLLATION);
-    let disclosures = await ONTARIO_DISCLOSURES.find({ name: final_name_sanitized }, COLLATION).sort({ category: 1 }).toArray();
+    if (lang === "fr") return res.redirect(307, `/en/on/${constituency_slug}`);
 
-    res.render('ontario-mpp', {
+    let member = await ONTARIO_MPPS.findOne({ constituency_slug }, COLLATION);
+
+    let disclosures = await ONTARIO_DISCLOSURES.find({ name: member.name }, COLLATION).sort({ category: 1 }).toArray();
+
+    res.render('member', {
         title: 'Member Details',
-        ...mpp,
+        siteTitle: req.i18n.t("on.title"),
+        portraitPath: "mpp_images",
+        ...member,
         groupedDisclosures: groupDisclosures(disclosures),
-        homeowner: homeOwnerText(mpp.name, disclosures),
-        landlord: landlordText(mpp.name, disclosures),
-        investor: investorText(mpp.name, disclosures),
+        homeowner: homeOwnerText(member.name, disclosures),
+        landlord: landlordText(member.name, disclosures),
+        investor: investorText(member.name, disclosures),
     });
 });
 
 /* ALBERTA */
 
-app.get('/:lang/ab', (req, res) => {
-    const { lang } = req.params
-    if (lang === 'fr') res.redirect(307, '/en/ab');
-    res.render('alberta-index', { title: req.i18n.t("ab.title") });
-});
+app.get('/:lang/ab/:constituency', async (req, res) => {
+    const { lang, constituency: constituency_slug } = req.params;
 
-app.get('/:lang/ab/:name', async (req, res) => {
-    const { name, lang } = req.params;
+    if (lang === "fr") return res.redirect(307, `/en/ab/${constituency_slug}`);
 
-    if (lang === "fr") res.redirect(307, `/en/ab/${name}`);
-
-    let name_split = name.split("_");
-    let final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
-
-    let mla = await ALBERTA_MLAS.findOne({ name: final_name_sanitized }, COLLATION);
-    let disclosures = await ALBERTA_DISCLOSURES.find({ name: final_name_sanitized }, COLLATION).sort({ category: 1 }).toArray();
+    let mla = await ALBERTA_MLAS.findOne({ constituency_slug }, COLLATION);
+    let disclosures = await ALBERTA_DISCLOSURES.find({ name: mla.name }, COLLATION).sort({ category: 1 }).toArray();
 
     let homeowner = false;
     let landlord = false;
@@ -253,8 +317,10 @@ app.get('/:lang/ab/:name', async (req, res) => {
         }
     }
 
-    res.render('alberta-mla', {
+    res.render('member', {
         title: 'Member Details',
+        siteTitle: req.i18n.t("ab.title"),
+        portraitPath: "ab_mla_images",
         ...mla,
         groupedDisclosures: groupDisclosures(disclosures),
         homeowner: albertaTextGenerator(mla['name'], "Homeowner", homeowner),
@@ -265,22 +331,13 @@ app.get('/:lang/ab/:name', async (req, res) => {
 
 /* QUEBEC */
 
-app.get('/:lang/qc', (req, res) => {
-    const { lang } = req.params
-    if (lang === 'en') res.redirect(307, '/fr/qc');
-    res.render('quebec-index', { title: req.i18n.t("qc.title") });
-});
+app.get('/:lang/qc/:constituency', async (req, res) => {
+    const { lang, constituency: constituency_slug } = req.params;
 
-app.get('/:lang/qc/:name', async (req, res) => {
-    const { name, lang } = req.params;
+    if (lang === "en") return res.redirect(307, `/fr/qc/${constituency_slug}`);
 
-    if (lang === "en") res.redirect(307, `/fr/qc/${name}`);
-
-    let name_split = name.split("_");
-    let final_name_sanitized = name_split.join(" ").replace(/[^a-zA-Z0-9\u00E0-\u00FC\u00E8-\u00EB\u0152\u0153\u00C0-\u00FC\u00C8-\u00CB\u0152. '-]/g, '');
-
-    let mna = await QUEBEC_MNAS.findOne({ name: final_name_sanitized }, COLLATION);
-    let disclosures = await QUEBEC_DISCLOSURES.find({ name: final_name_sanitized }, COLLATION).sort({ category: 1 }).toArray();
+    let mna = await QUEBEC_MNAS.findOne({ constituency_slug }, COLLATION);
+    let disclosures = await QUEBEC_DISCLOSURES.find({ name: mna.name }, COLLATION).sort({ category: 1 }).toArray();
 
     let homeowner = false;
     let landlord = false;
@@ -308,7 +365,8 @@ app.get('/:lang/qc/:name', async (req, res) => {
         }
     }
 
-    res.render('quebec-mna', {
+    res.render('member', {
+        siteTitle: req.i18n.t("ab.title"),
         title: 'Détails du Membre',
         ...mna,
         groupedDisclosures: groupDisclosures(disclosures),

@@ -12,17 +12,21 @@ html.no-js(lang=`${lang}-ca`)
       link(rel="stylesheet" href="/index.css")
       link(rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:ital,wght@0,200..800;1,200..800&family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&display=swap")
   body
+    a(href="#content").visually-hidden.skip-to-content=t("skipToContent")
+    case lang
+      when "en": a.switch-language(href=currentPath.startsWith("/en/about") ? "/fr/a-propos" : currentPath.replace("en", "fr")) Français
+      when "fr": a.switch-language(href=currentPath.startsWith("/fr/a-propos") ? "/en/about" : currentPath.replace("fr", "en")) English
     header
       nav
         mixin nav-link
           a(aria-current=attributes.href === currentPath && "page")&attributes(attributes)
             block
-        +nav-link(href=`/${lang}`) Home
-        +nav-link(href=`/${lang}/about`) About
+        +nav-link(href=`/${lang}`)=t("home")
+        +nav-link(href=`/${lang}/${lang === "en" ? "about" : "a-propos"}`)=t("about")
         +nav-link(href=`/${lang}/on`) Ontario MPPs
         +nav-link(href=`/${lang}/ab`) Alberta MLAs
         +nav-link(href=`/${lang}/qc`) Quebec MNAs
-    main
+    main#content
       block main
     footer.contact
       address Contact: #{t("contactEmail")}

@@ -1,0 +1,148 @@
+//- Expected locals:
+
+  interface Locals {
+    members: Member[];
+    parties: string[];
+    constituencies: Constituency[];
+
+    portraitPath: string;
+
+    lang: "en" | "fr";
+    scope: string;
+  }
+
+  interface Constituency {
+    name: string;
+    slug: string;
+  }
+
+  interface Member {
+    name: string;
+
+    party: string;
+
+    constituency: Constituency["name"];
+    constituency_slug: Constituency["slug"];
+
+    landlord?: boolean;
+    homeowner?: boolean;
+    investor?: boolean;
+
+    image_name: string;
+  }
+
+extends _layouts/base
+
+include _mixins/data-source
+
+append head
+  style: include member-list.css
+
+append foot
+  script(defer)
+    if provinces
+      include member-list-with-province-filter.js
+    else
+      include member-list-without-province-filter.js
+
+block main
+  .title
+    h1=title
+    +data-source(scope)
+    each notice in notices
+      p=notice
+  if parties
+    details.totals(open)
+      summary#table-details-label=t("landlordsByParty")
+      .totals-table-wrapper
+        table.totals-table(aria-labelledby="table-details-label")
+          thead
+            th=t("party")
+            th=t("members")
+            th=t("landlords")
+            th=t("percentage")
+          tbody
+            each party in parties.sort((a, b) => members.filter(member => member.party === b).length - members.filter(member => member.party === a).length)
+              - const memberCount = members.filter(member => party === "Indépendant" ? member.party.startsWith("Indépendant") : member.party === party).length
+              - const landlordCount = members.filter(member => (party === "Indépendant" ? member.party.startsWith("Indépendant") : member.party === party) && member.landlord).length
+              tr(data-party=party)
+                th(scope="row")=party
+                td=memberCount
+                td=landlordCount
+                td #{(landlordCount / memberCount * 100).toFixed(2)}%
+          tfoot
+            - const memberCount = members.length
+            - const landlordCount = members.filter(member => member.landlord).length
+            th(scope="row")=t("allParties")
+            td=memberCount
+            td=landlordCount
+            td #{(landlordCount / memberCount * 100).toFixed(2)}%
+
+  form(name="filters")
+    if parties
+      .filter
+        label(for="filter-party")=t("party")
+        select#filter-party(name="party")
+          button: selectedcontent
+          option(value=t("all"))=t("all")
+          each party in parties.sort()
+            option(value=party)
+              div(data-party=party style="display: contents")
+                svg(viewBox="0 0 20 20" width="1em" style="align-self: center")
+                  circle(r="10" cx="10" cy="10" fill="var(--party-color)")
+                span=party
+
+    if provinces
+      .filter
+        label(for="filter-province")=t("province")
+        select#filter-province(name="province")
+          option(value=t("all"))=t("all")
+          each label, key in provinces
+            option(value=key)=label
+
+    if constituencies
+      .filter
+        label(for="filter-constituency")=t("constituency")
+        select#filter-constituency(name="constituency")
+          option(value=t("all"))=t("all")
+          each constituency in constituencies
+            option(value=constituency.slug)=constituency.name
+
+    if constituenciesByProvince
+      .filter
+        label(for="filter-constituency")=t("constituency")
+        select#filter-constituency(name="constituency")
+          option(value=t("all"))=t("all")
+          each constituencies, province in constituenciesByProvince
+            optgroup(label=t(`provinces.${province}`) data-province=province)
+              each constituency in constituencies.sort((a, b) => new Intl.Collator("en-ca").compare(a.name, b.name))
+                option(value=constituency.name data-province=constituency.province)=constituency.name
+
+    .filter
+      label(for="filter-landlords")
+        input#filter-landlords(name="landlords" type="checkbox")
+        | #{t("onlyLandlords")}
+
+  #live-region.visually-hidden(aria-live="polite")
+  ul.member-cards-grid
+    each member in members
+      li.member-card(
+        data-province=member.province || undefined
+        data-party=member.party.startsWith("Indépendant") ? "Indépendant" : member.party
+        data-constituency=member.constituency_slug
+        data-landlord=JSON.stringify(member.landlord)
+        style=`view-transition-name: ${member.constituency_slug}`
+      )
+        img.member-portrait(src=`/images/${portraitPath}/${member.image_name}` alt="" loading="lazy")
+        .member-card-content
+          h2.member-card-title!=t(member.landlord ? "isALandlord" : "isNotKnownToBeALandlord", { name: member.name })
+          dl.member-card-details
+            dt.visually-hidden=t("party")
+            dd=member.party
+            .member-additional-details
+              dt.visually-hidden=t("constituency")
+              dd=member.constituency
+              if member.province
+                dt.visually-hidden=t("province")
+                dd=t("provinces")[member.province]
+          a.member-card-cta(href=`/${lang}/${scope}/${member.constituency_slug}`)!=t("learnMoreAboutMember", { name: member.name })
