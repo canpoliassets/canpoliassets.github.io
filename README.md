@@ -1,31 +1,32 @@
 # README & FAQ
 
-This is the source for `ismympalandlord.ca` inspired originally by Isaac Peltz and initially put together by OmegaSheep and maintained and improved (hopefully) by the community.
+This is the source for [ismympalandlord.ca](https://ismympalandlord.ca) inspired originally by Isaac Peltz and initially put together by OmegaSheep and maintained and improved (hopefully) by the community.
 
 ## Stack:
 
-- Node.js / Express
-- MongoDB - (Cheap, malleable, handles french characters nicely)
-- React (Needs work)
+- Runtime: Node.js
+- Web framework: [Express.js](https://expressjs.com/)
+- Templating: [Pug.js](https://pugjs.org/)
+- Database: MongoDB - (Cheap, malleable, handles French characters nicely)
 
-# FAQ
+## FAQ
 
-## Why is the [thing] so [criticism]?
+### Why is the [thing] so [criticism]?
 
 This was put together in a hurry to quickly prototype and share something publicly. If something is bad, it's likely because it was done quickly. I encourage you to make it better.
 
-## How is this hosted?
+### How is this hosted?
 
 fly.io
 
-# Dev Setup
+## Dev Setup
 
 You will need:
 
 - Docker with docker-compose
-- NodeJS >= 18
+- NodeJS >= 22
 
-```
+```shell
 cp .env.sample .env
 docker-compose up -d
 
