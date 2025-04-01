@@ -1,0 +1,131 @@
+form[name="filters"] {
+    .no-js & { display: none; }
+
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 1rem;
+    row-gap: 0.5rem;
+    justify-content: center;
+    align-items: baseline;
+    padding-block-start: 1.5rem;
+    border-block-start: 2px solid hsl(from CanvasText h s l / 0.1);
+
+
+    label:has(input[type="checkbox"]) {
+        display: flex;
+        align-items: baseline;
+        column-gap: 0.25rem;
+    }
+
+    label {
+        font-weight: 600;
+    }
+
+    label + select {
+        margin-inline-start: 0.25rem;
+    }
+
+    @supports selector(::picker(select)) {
+        select, ::picker(select) {
+            appearance: base-select;
+            background-color: Canvas;
+        }
+
+        ::picker(select) {
+            border-radius: 4px;
+            margin-block: 4px;
+        }
+
+        selectedcontent {
+            display: flex;
+            align-items: baseline;
+            gap: 0.25rem;
+        }
+
+        option {
+            gap: 0.25rem;
+        }
+    }
+
+    input[type="checkbox"] {
+        align-self: center;
+        margin: 0;
+    }
+}
+
+.totals {
+    max-inline-size: 30rem;
+    margin-inline: auto;
+    margin-block-end: 1rem;
+}
+
+:where(
+    [data-party="Bloc Québécois"],
+    [data-party="Coalition avenir Québec"]
+) { --party-color: #0088ce; }
+:where([data-party~="Conservative"]) { --party-color: #002395; }
+:where([data-party~="Green"]) { --party-color: #427a26; }
+:where([data-party~="Liberal"], [data-party~="libéral"]) { --party-color: #d71920; }
+:where([data-party="NDP"], [data-party^="New Democratic Party"], [data-party="Québec solidaire"]) { --party-color: #ff5800; }
+:where([dat&a-party~="Independent"]) { --party-color: #c0c0c0; }
+
+.totals-table-wrapper {
+    min-inline-size: 100%;
+    overflow: auto;
+    position: relative;
+    overscroll-behavior: none;
+}
+
+.totals-table {
+    table-layout: fixed;
+    font-variant-numeric: tabular-nums;
+
+    th:first-of-type {
+        text-align: start;
+        padding-inline-end: 8px;
+        min-inline-size: 12ch;
+        inline-size: 100%;
+        position: sticky;
+        inset-inline-start: 2px;
+
+        &:is(tbody [scope="row"]) {
+            border-inline-start: 4px solid var(--party-color);
+            padding-inline-start: 8px;
+        }
+
+        &:is(:is(thead, tfoot) th) {
+            padding-inline-start: 12px;
+        }
+    }
+
+    th:nth-of-type(2) { inline-size: 6ch; }
+    th:nth-of-type(3) { inline-size: 8ch; }
+    th:nth-of-type(4) { inline-size: 9ch; }
+    th:not(:first-of-type), td {
+        text-align: end;
+        padding-inline: 8px;
+    }
+
+    thead :is(th) {
+        border-block-end: 2px solid hsl(from CanvasText h s l / 0.3);
+        inline-size: fit-content;
+    }
+
+    tfoot :is(th, td) {
+        border-block-start: 2px solid hsl(from CanvasText h s l / 0.3);
+    }
+
+    tbody {
+        tr:nth-of-type(odd) :is(td, th) {
+            background-color: Canvas;
+        }
+
+        tr:nth-of-type(even) :is(td, th) {
+            background-color: #f2f2f2;
+        }
+    }
+
+    :is(thead, tfoot) :is(th, td) {
+        background-color: #f2f2f2;
+    }
+}
