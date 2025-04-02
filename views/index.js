@@ -9,7 +9,7 @@ for (const control of controls) control.addEventListener("input", filterResults)
 
 function filterResults(mp) {
     liveRegion.ariaBusy = "true";
-    if (matchMedia("(prefers-reduced-motion)").matches) filter();
+    if (matchMedia("(prefers-reduced-motion) or (max-width: 450px)").matches) filter();
     const viewTransition = document.startViewTransition?.(filter) ?? filter();
 
     viewTransition?.finished.then(updateLiveRegion) ?? requestAnimationFrame(updateLiveRegion);
