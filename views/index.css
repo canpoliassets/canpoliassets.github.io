@@ -39,7 +39,8 @@ label:has(select, input) {
 
 @supports selector(::picker(select)) {
     select, ::picker(select) {
-        appearance: base-select;
+        /* TODO: fix issues with picker disappearing in Android Chrome */
+        /*appearance: base-select;*/
         background-color: Canvas;
     }
 
