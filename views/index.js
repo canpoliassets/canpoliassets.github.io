@@ -7,7 +7,7 @@ controls.push(onlyLandlords);
 
 for (const control of controls) control.addEventListener("input", filterResults)
 
-function filterResults(mp) {
+function filterResults(event) {
     liveRegion.ariaBusy = "true";
     if (matchMedia("(prefers-reduced-motion)").matches) filter();
     const viewTransition = document.startViewTransition?.(filter) ?? filter();
@@ -15,6 +15,13 @@ function filterResults(mp) {
     viewTransition?.finished.then(updateLiveRegion) ?? requestAnimationFrame(updateLiveRegion);
 
     function filter() {
+        if (event.target.id === "province-select") {
+            for (const group of document.querySelectorAll("#constituency-select optgroup")) {
+                group.hidden = event.target.value !== group.label;
+            }
+            filterByConstituency.value = ALL;
+        }
+
         for (const mp of document.querySelectorAll(".mp-card")) {
             mp.hidden = 
                 filterByParty.value === ALL && filterByProvince.value === ALL && filterByConstituency.value === ALL && !onlyLandlords.checked
