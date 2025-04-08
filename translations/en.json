@@ -32,10 +32,9 @@
     },
     "nl": {
         "title": "Is My MHA a Landlord?",
-        "dataSource": {
-            "href": "",
-            "label": ""
-        }
+        "notices": [
+            "All data sourced from the work of Isaac Peltz."
+        ]
     },
     "allDataSourcedFrom": "All data sourced from the <a href=\"{{sourceLink}}\">{{sourceLabel}}</a>",
     "contactEmail": "mplandlordcheck [ at ] protonmail [ dot ] com",

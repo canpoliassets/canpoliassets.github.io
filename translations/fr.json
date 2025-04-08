@@ -27,10 +27,7 @@
     },
     "nl": {
         "title": "Mon député est-il un propriétaire?",
-        "dataSource": {
-            "href": "",
-            "label": ""
-        }
+        "notices": ["Toutes les données proviennent des travaux d'Isaac Peltz."]
     },
     "allDataSourcedFrom": "Toutes les données proviennent de <a href=\"{{sourceLink}}\">{{sourceLabel}}</a>",
     "contactEmail": "mplandlordcheck [ at ] protonmail [ dot ] com",
