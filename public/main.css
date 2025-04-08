@@ -92,7 +92,7 @@
     .member-card:where([data-party="Conservative"], [data-party="UC"]) { --party-color: #002395; }
     .member-card:where([data-party="Green"]) { --party-color: #427a26; }
     .member-card:where([data-party="Liberal"]) { --party-color: #d71920; }
-    .member-card:where([data-party="NDP"]) { --party-color: #ff5800; }
+    .member-card:where([data-party="NDP"], [data-party="New Democrat"]) { --party-color: #ff5800; }
 
     .member-card-content {
         display: grid;

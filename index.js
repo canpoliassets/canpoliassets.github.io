@@ -25,6 +25,9 @@ const ALBERTA_DISCLOSURES = database.collection('alberta_disclosures');
 const QUEBEC_MNAS = database.collection('quebec_mnas');
 const QUEBEC_DISCLOSURES = database.collection('quebec_disclosures');
 
+const NEWFOUNDLAND_MHAS = database.collection('newfoundland_mhas');
+const NEWFOUNDLAND_DISCLOSURES = database.collection('newfoundland_disclosures');
+
 const COLLATION = { collation : {locale: "fr_CA", strength: 2 }}
 
 const app = express();
@@ -216,6 +219,23 @@ const PROVINCES = {
             return member;
         },
     },
+    nl: {
+        collection: NEWFOUNDLAND_MHAS,
+        portraitPath: "mha_images",
+        disclosureCollection: "newfoundland_disclosures",
+        mapDisclosures: member => {
+            for (const disclosure of member.disclosures) {
+                if (disclosure.content.includes('résidentielles personnelles')) member.homeowner = true;
+                if (disclosure.content.includes("Revenu de location")) member.landlord = true;
+                if (
+                    disclosure.category.includes("Fiducie ou mandat sans droit de regard") ||
+                    disclosure.category.includes("Entreprises, personnes, morales, sociétés et associations, mentionnées") ||
+                    disclosure.category.includes("Succession ou fiducie, dont la ou le membre est bénéficiaire pour une valeur de 10 000 $ et plus")
+                ) member.investor = true;
+            }
+            return member;
+        },
+    },
 };
 
 app.get("/:lang/:province", async (req, res, next) => {
@@ -373,6 +393,51 @@ app.get('/:lang/qc/:constituency', async (req, res) => {
         homeowner: quebecHomeOwnerGenerator(mna['name'], homeowner),
         landlord: quebecLandlordGenerator(mna['name'], landlord),
         investor: quebecInvestorGenerator(mna['name'], investor),
+    });
+});
+
+/* NEWFOUNDLAND & LABRADOR */
+app.get('/:lang/nl/:constituency', async (req, res) => {
+    const { lang, constituency: constituency_slug } = req.params;
+
+    if (lang === "fr") return res.redirect(307, `/en/nl/${constituency_slug}`);
+
+    let mha = await NEWFOUNDLAND_MHAS.findOne({ constituency_slug }, COLLATION);
+    let disclosures = await NEWFOUNDLAND_DISCLOSURES.find({ name: mha.name }, COLLATION).sort({ category: 1 }).toArray();
+
+    let homeowner = false;
+    let landlord = false;
+    let investor = false;
+    for (let i=0; i<disclosures.length;++i) {
+        if (disclosures[i]['category'] == 'Property') {
+            homeowner = true;
+        }
+        if (disclosures[i]['content'].includes("Rental Income")) {
+            landlord = true;
+        }
+        if (disclosures[i]['content'].includes("Rental Property")) {
+            landlord = true;
+        }
+        if (disclosures[i]['category'].includes("Securities")) {
+            investor = true;
+        }
+        if (disclosures[i]['category'].includes("Bonds & Certificates")) {
+            investor = true;
+        }
+        if (disclosures[i]['category'].includes("Financial Assets")) {
+            investor = true;
+        }
+    }
+
+    res.render('member', {
+        title: 'Member Details',
+        siteTitle: req.i18n.t("nl.title"),
+        portraitPath: "mha_images",
+        ...mha,
+        groupedDisclosures: groupDisclosures(disclosures),
+        homeowner: albertaTextGenerator(mha['name'], "Homeowner", homeowner),
+        landlord: albertaTextGenerator(mha['name'], "Landlord", landlord),
+        investor: albertaInvestorTextGenerator(mha['name'], investor),
     });
 });
 
