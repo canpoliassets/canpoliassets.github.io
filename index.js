@@ -343,9 +343,9 @@ app.get('/:lang/ab/:constituency', async (req, res) => {
         portraitPath: "ab_mla_images",
         ...mla,
         groupedDisclosures: groupDisclosures(disclosures),
-        homeowner: albertaTextGenerator(mla['name'], "Homeowner", homeowner),
-        landlord: albertaTextGenerator(mla['name'], "Landlord", landlord),
-        investor: albertaInvestorTextGenerator(mla['name'], investor),
+        homeowner: englishHomeTextGenerator(mla['name'], "Homeowner", homeowner),
+        landlord: englishHomeTextGenerator(mla['name'], "Landlord", landlord),
+        investor: englishInvestorTextGenerator(mla['name'], investor),
     });
 });
 
@@ -409,23 +409,14 @@ app.get('/:lang/nl/:constituency', async (req, res) => {
     let landlord = false;
     let investor = false;
     for (let i=0; i<disclosures.length;++i) {
-        if (disclosures[i]['category'] == 'Property') {
+        if (disclosures[i]['content'].includes("Inc.")) {
+            investor = true;
+        }
+        if (disclosures[i]['content'].includes("rental")) {
+            landlord = true;
+        }
+        if (disclosures[i]['content'].includes("residential")) {
             homeowner = true;
-        }
-        if (disclosures[i]['content'].includes("Rental Income")) {
-            landlord = true;
-        }
-        if (disclosures[i]['content'].includes("Rental Property")) {
-            landlord = true;
-        }
-        if (disclosures[i]['category'].includes("Securities")) {
-            investor = true;
-        }
-        if (disclosures[i]['category'].includes("Bonds & Certificates")) {
-            investor = true;
-        }
-        if (disclosures[i]['category'].includes("Financial Assets")) {
-            investor = true;
         }
     }
 
@@ -435,9 +426,9 @@ app.get('/:lang/nl/:constituency', async (req, res) => {
         portraitPath: "mha_images",
         ...mha,
         groupedDisclosures: groupDisclosures(disclosures),
-        homeowner: albertaTextGenerator(mha['name'], "Homeowner", homeowner),
-        landlord: albertaTextGenerator(mha['name'], "Landlord", landlord),
-        investor: albertaInvestorTextGenerator(mha['name'], investor),
+        homeowner: englishHomeTextGenerator(mha['name'], "Homeowner", homeowner),
+        landlord: englishHomeTextGenerator(mha['name'], "Landlord", landlord),
+        investor: englishInvestorTextGenerator(mha['name'], investor),
     });
 });
 
@@ -505,7 +496,7 @@ function investorText(name, disclosures) {
     return `${name} is not known to hold significant investments.`;
 }
 
-function albertaTextGenerator(name, title, status) {
+function englishHomeTextGenerator(name, title, status) {
     if (status) {
         return `${name} is a ${title}.`
     } else {
@@ -513,7 +504,7 @@ function albertaTextGenerator(name, title, status) {
     }
 }
 
-function albertaInvestorTextGenerator(name, status) {
+function englishInvestorTextGenerator(name, status) {
     if (status) {
         return `${name} holds significant investments.`
     } else {
