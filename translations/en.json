@@ -30,6 +30,13 @@
             "label": "Sommaires des déclarations des intérêts personnels"
         }
     },
+    "nl": {
+        "title": "Is My MHA a Landlord?",
+        "dataSource": {
+            "href": "",
+            "label": ""
+        }
+    },
     "allDataSourcedFrom": "All data sourced from the <a href=\"{{sourceLink}}\">{{sourceLabel}}</a>",
     "contactEmail": "mplandlordcheck [ at ] protonmail [ dot ] com",
     "all": "All",

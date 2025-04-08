@@ -25,6 +25,13 @@
             "label": "Sommaires des déclarations des intérêts personnels"
         }
     },
+    "nl": {
+        "title": "Mon député est-il un propriétaire?",
+        "dataSource": {
+            "href": "",
+            "label": ""
+        }
+    },
     "allDataSourcedFrom": "Toutes les données proviennent de <a href=\"{{sourceLink}}\">{{sourceLabel}}</a>",
     "contactEmail": "mplandlordcheck [ at ] protonmail [ dot ] com",
     "all": "Toutes",
