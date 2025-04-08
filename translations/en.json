@@ -18,10 +18,13 @@
         "dataSource": {
             "href": "https://pds.oico.on.ca/Pages/Public/PublicDisclosures.aspx",
             "label": "Office of the Integrity Commissioner"
-        }
+        },
+        "notices": [
+            "(NOTE: Data reflects the previous parliament, and is not up to date with the latest election. Once new ethics disclosures are filed, we will update this page.)"
+        ]
     },
     "qc": {
-        "title": "Mon député est-il un propriétaire?",
+        "title": "Is My MNA a Landlord?",
         "dataSource": {
             "href": "https://www.ced-qc.ca/fr/registres-publics/sommaires-des-declarations-des-interets-personnels/22-membres-du-conseil-executif-et-deputes",
             "label": "Sommaires des déclarations des intérêts personnels"
@@ -31,7 +34,39 @@
     "contactEmail": "mplandlordcheck [ at ] protonmail [ dot ] com",
     "all": "All",
     "party": "Party",
+    "members": "Members",
+    "landlord": "Landlord",
+    "landlords": "Landlords",
     "province": "Province",
     "constituency": "Constituency",
-    "home": "Home"
+    "percentage": "Percentage",
+    "home": "Home",
+    "about": "About",
+    "isALandlord": "<strong translate=no>{{name}}</strong> is a landlord",
+    "isNotKnownToBeALandlord": "<strong translate=no>{{name}}</strong> is not known to be a landlord",
+    "learnMoreAboutMember": "Learn more <span class=visually-hidden>about {{name}}</span>",
+
+    "onlyLandlords": "Only landlords",
+
+    "landlordsByParty": "Landlords by party",
+
+    "allParties": "All parties",
+
+    "skipToContent": "Skip to content",
+
+    "provinces": {
+		"ab": "Alberta",
+		"bc": "British Columbia",
+		"mb": "Manitoba",
+		"nb": "New Brunswick",
+		"nl": "Newfoundland and Labrador",
+		"ns": "Nova Scotia",
+		"nt": "Northwest Territories",
+		"nu": "Nunavut",
+		"on": "Ontario",
+		"pe": "Prince Edward Island",
+		"qc": "Quebec",
+		"sk": "Saskatchewan",
+		"yt": "Yukon"
+	}
 }

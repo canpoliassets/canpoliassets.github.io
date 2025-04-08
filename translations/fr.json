@@ -2,20 +2,20 @@
     "siteTitle": "Mon député est-il un propriétaire?",
     "federal": {
         "href": "https://prciec-rpccie.parl.gc.ca/EN/PublicRegistries/Pages/PublicRegistry.aspx",
-        "label": "Office of Conflict of Interest and Ethics Commissioner"
+        "label": "le Commissariat aux conflits d'intérêts et à l'éthique"
     },
     "ab": {
-        "title": "Is My MLA a Landlord?",
+        "title": "Mon député est-il un propriétaire?",
         "dataSource": {
             "href": "https://www.ethicscommissioner.ab.ca/disclosure/mla-public-disclosure/",
-            "label": "Office of the Ethics Commissioner"
+            "label": "le Bureau du commissaire à l'éthique"
         }
     },
     "on": {
-        "title": "Is My MPP a Landlord?",
+        "title": "Mon député est-il un propriétaire?",
         "dataSource": {
             "href": "https://pds.oico.on.ca/Pages/Public/PublicDisclosures.aspx",
-            "label": "Office of the Integrity Commissioner"
+            "label": "le Bureau du commissaire à l’intégrité"
         }
     },
     "qc": {
@@ -29,7 +29,36 @@
     "contactEmail": "mplandlordcheck [ at ] protonmail [ dot ] com",
     "all": "Toutes",
     "party": "Parti",
+    "members": "Députés",
+    "landlord": "Propriétaire",
+    "landlords": "Propriétaires",
     "province": "Province",
     "constituency": "Circonscription",
-    "home": "Home"
+    "percentage": "Pourcentage",
+    "home": "Accueil",
+    "about": "À propos",
+    "isALandlord": "<strong translate=no>{{name}}</strong> reçoit un revenu de location",
+    "isNotKnownToBeALandlord": "<strong translate=no>{{name}}</strong> ne reçoit pas de revenu de location",
+    "learnMoreAboutMember": "En savoir plus <span class=visually-hidden>sur {{name}}</span>",
+    "onlyLandlords": "Seuls les propriétaires",
+    "landlordsByParty": "Propriétaires par parti",
+    "allParties": "Toutes les parties",
+
+    "skipToContent": "Passer au contenu",
+
+    "provinces": {
+		"ab": "Alberta",
+		"bc": "Colombie-Britannique",
+		"pe": "Île-du-Prince-Édouard",
+		"mb": "Manitoba",
+		"nb": "Nouveau-Brunswick",
+		"ns": "Nouvelle-Écosse",
+		"nu": "Nunavut",
+		"on": "Ontario",
+		"qc": "Québec",
+		"sk": "Saskatchewan",
+		"nl": "Terre-Neuve-et-Labrador",
+		"nt": "Territoires du Nord-Ouest",
+		"yt": "Yukon"
+	}
 }
