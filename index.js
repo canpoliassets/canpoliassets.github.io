@@ -225,7 +225,7 @@ const PROVINCES = {
         disclosureCollection: "newfoundland_disclosures",
         mapDisclosures: member => {
             for (const disclosure of member.disclosures) {
-                if (disclosure.content.includes('residential')) member.homeowner = true;
+                member.homeowner = true; // True per Isaac Peltz - we can implement proper filtering if NL government ever releases real data. . .
                 if (disclosure.content.includes("rental")) member.landlord = true;
                 if (disclosure.category.includes("Inc.")) member.investor = true;
             }
@@ -401,7 +401,7 @@ app.get('/:lang/nl/:constituency', async (req, res) => {
     let mha = await NEWFOUNDLAND_MHAS.findOne({ constituency_slug }, COLLATION);
     let disclosures = await NEWFOUNDLAND_DISCLOSURES.find({ name: mha.name }, COLLATION).sort({ category: 1 }).toArray();
 
-    let homeowner = false;
+    let homeowner = true; // This is true per Isaac Peltz - we can properly filter if the NL Government ever releases real data. . .
     let landlord = false;
     let investor = false;
     for (let i=0; i<disclosures.length;++i) {
