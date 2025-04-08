@@ -225,13 +225,9 @@ const PROVINCES = {
         disclosureCollection: "newfoundland_disclosures",
         mapDisclosures: member => {
             for (const disclosure of member.disclosures) {
-                if (disclosure.content.includes('résidentielles personnelles')) member.homeowner = true;
-                if (disclosure.content.includes("Revenu de location")) member.landlord = true;
-                if (
-                    disclosure.category.includes("Fiducie ou mandat sans droit de regard") ||
-                    disclosure.category.includes("Entreprises, personnes, morales, sociétés et associations, mentionnées") ||
-                    disclosure.category.includes("Succession ou fiducie, dont la ou le membre est bénéficiaire pour une valeur de 10 000 $ et plus")
-                ) member.investor = true;
+                if (disclosure.content.includes('residential')) member.homeowner = true;
+                if (disclosure.content.includes("rental")) member.landlord = true;
+                if (disclosure.category.includes("Inc.")) member.investor = true;
             }
             return member;
         },

@@ -33,7 +33,7 @@
     "nl": {
         "title": "Is My MHA a Landlord?",
         "notices": [
-            "All data sourced from the work of Isaac Peltz."
+            "All data sourced from the work of Isaac Peltz. Data is limited."
         ]
     },
     "allDataSourcedFrom": "All data sourced from the <a href=\"{{sourceLink}}\">{{sourceLabel}}</a>",
