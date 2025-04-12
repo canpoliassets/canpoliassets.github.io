@@ -25,6 +25,9 @@ const ALBERTA_DISCLOSURES = database.collection('alberta_disclosures');
 const QUEBEC_MNAS = database.collection('quebec_mnas');
 const QUEBEC_DISCLOSURES = database.collection('quebec_disclosures');
 
+const NEWFOUNDLAND_MHAS = database.collection('newfoundland_mhas');
+const NEWFOUNDLAND_DISCLOSURES = database.collection('newfoundland_disclosures');
+
 const COLLATION = { collation : {locale: "fr_CA", strength: 2 }}
 
 const app = express();
@@ -216,6 +219,19 @@ const PROVINCES = {
             return member;
         },
     },
+    nl: {
+        collection: NEWFOUNDLAND_MHAS,
+        portraitPath: "mha_images",
+        disclosureCollection: "newfoundland_disclosures",
+        mapDisclosures: member => {
+            for (const disclosure of member.disclosures) {
+                member.homeowner = true; // True per Isaac Peltz - we can implement proper filtering if NL government ever releases real data. . .
+                if (disclosure.content.includes("rental")) member.landlord = true;
+                if (disclosure.category.includes("Inc.")) member.investor = true;
+            }
+            return member;
+        },
+    },
 };
 
 app.get("/:lang/:province", async (req, res, next) => {
@@ -323,9 +339,9 @@ app.get('/:lang/ab/:constituency', async (req, res) => {
         portraitPath: "ab_mla_images",
         ...mla,
         groupedDisclosures: groupDisclosures(disclosures),
-        homeowner: albertaTextGenerator(mla['name'], "Homeowner", homeowner),
-        landlord: albertaTextGenerator(mla['name'], "Landlord", landlord),
-        investor: albertaInvestorTextGenerator(mla['name'], investor),
+        homeowner: englishHomeTextGenerator(mla['name'], "Homeowner", homeowner),
+        landlord: englishHomeTextGenerator(mla['name'], "Landlord", landlord),
+        investor: englishInvestorTextGenerator(mla['name'], investor),
     });
 });
 
@@ -373,6 +389,42 @@ app.get('/:lang/qc/:constituency', async (req, res) => {
         homeowner: quebecHomeOwnerGenerator(mna['name'], homeowner),
         landlord: quebecLandlordGenerator(mna['name'], landlord),
         investor: quebecInvestorGenerator(mna['name'], investor),
+    });
+});
+
+/* NEWFOUNDLAND & LABRADOR */
+app.get('/:lang/nl/:constituency', async (req, res) => {
+    const { lang, constituency: constituency_slug } = req.params;
+
+    if (lang === "fr") return res.redirect(307, `/en/nl/${constituency_slug}`);
+
+    let mha = await NEWFOUNDLAND_MHAS.findOne({ constituency_slug }, COLLATION);
+    let disclosures = await NEWFOUNDLAND_DISCLOSURES.find({ name: mha.name }, COLLATION).sort({ category: 1 }).toArray();
+
+    let homeowner = true; // This is true per Isaac Peltz - we can properly filter if the NL Government ever releases real data. . .
+    let landlord = false;
+    let investor = false;
+    for (let i=0; i<disclosures.length;++i) {
+        if (disclosures[i]['content'].includes("Inc.")) {
+            investor = true;
+        }
+        if (disclosures[i]['content'].includes("rental")) {
+            landlord = true;
+        }
+        if (disclosures[i]['content'].includes("residential")) {
+            homeowner = true;
+        }
+    }
+
+    res.render('member', {
+        title: 'Member Details',
+        siteTitle: req.i18n.t("nl.title"),
+        portraitPath: "mha_images",
+        ...mha,
+        groupedDisclosures: groupDisclosures(disclosures),
+        homeowner: englishHomeTextGenerator(mha['name'], "Homeowner", homeowner),
+        landlord: englishHomeTextGenerator(mha['name'], "Landlord", landlord),
+        investor: englishInvestorTextGenerator(mha['name'], investor),
     });
 });
 
@@ -440,7 +492,7 @@ function investorText(name, disclosures) {
     return `${name} is not known to hold significant investments.`;
 }
 
-function albertaTextGenerator(name, title, status) {
+function englishHomeTextGenerator(name, title, status) {
     if (status) {
         return `${name} is a ${title}.`
     } else {
@@ -448,7 +500,7 @@ function albertaTextGenerator(name, title, status) {
     }
 }
 
-function albertaInvestorTextGenerator(name, status) {
+function englishInvestorTextGenerator(name, status) {
     if (status) {
         return `${name} holds significant investments.`
     } else {

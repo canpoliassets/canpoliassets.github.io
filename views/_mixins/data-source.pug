@@ -1,2 +1,3 @@
 mixin data-source(prefix)
-  p!=t("allDataSourcedFrom", { sourceLabel: t(`${prefix}.dataSource.label`), sourceLink: t(`${prefix}.dataSource.href`) })
+  if t(`${prefix}.dataSource`)
+      p!=t("allDataSourcedFrom", { sourceLabel: t(`${prefix}.dataSource.label`), sourceLink: t(`${prefix}.dataSource.href`) })
