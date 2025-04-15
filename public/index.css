@@ -104,6 +104,9 @@ a.invis{
 .uc {
     border-color:#002395;
 }
+.pc {
+    border-color:#002395;
+}
 .progressive-conservative {
     border-color:#002395;
 }
@@ -122,9 +125,15 @@ a.invis{
 .independent {
     border-color: silver;
 }
+.ind {
+    border-color: silver;
+}
 
 .liberal {
     border-color:#D71920;
+}
+.ind-lib {
+    border-color: #D71920;
 }
 .ontario-liberal {
     border-color:#D71920;
