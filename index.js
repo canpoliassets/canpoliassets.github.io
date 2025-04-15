@@ -115,6 +115,7 @@ app.get('/:lang', async (req, res) => {
         members
             .map(member => ({
                 name: member.constituency,
+                slug: member.constituency_slug,
                 province: member.province,
             }))
             .sort((a, b) => req.collator(a.province, b.province)),
