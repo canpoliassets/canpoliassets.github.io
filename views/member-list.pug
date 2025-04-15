@@ -116,7 +116,7 @@ block main
           each constituencies, province in constituenciesByProvince
             optgroup(label=t(`provinces.${province}`) data-province=province)
               each constituency in constituencies.sort((a, b) => new Intl.Collator("en-ca").compare(a.name, b.name))
-                option(value=constituency.name data-province=constituency.province)=constituency.name
+                option(value=constituency.slug data-province=constituency.province)=constituency.name
 
     .filter
       label(for="filter-landlords")
