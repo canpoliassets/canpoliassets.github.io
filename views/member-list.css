@@ -63,11 +63,11 @@ form[name="filters"] {
     [data-party="Bloc Québécois"],
     [data-party="Coalition avenir Québec"]
 ) { --party-color: #0088ce; }
-:where([data-party~="Conservative"], [data-party="Parti québécois"], [data-party="UC"]) { --party-color: #002395; }
+:where([data-party~="Conservative"], [data-party="Parti québécois"], [data-party="UC"], [data-party="PC"]) { --party-color: #002395; }
 :where([data-party~="Green"]) { --party-color: #427a26; }
-:where([data-party~="Liberal"], [data-party~="libéral"]) { --party-color: #d71920; }
+:where([data-party~="Liberal"], [data-party~="libéral"], [data-party="IND LIB"]) { --party-color: #d71920; }
 :where([data-party="NDP"], [data-party^="New Democratic Party"], [data-party="Québec solidaire"], [data-party="New Democrat"]) { --party-color: #ff5800; }
-:where([data-party~="Independent"], [data-party~="Indépendant"], [data-party~="Independent/Non-Affiliated"]) { --party-color: #c0c0c0; }
+:where([data-party~="Independent"], [data-party~="Indépendant"], [data-party~="Independent/Non-Affiliated"], [data-party="IND"]) { --party-color: #c0c0c0; }
 
 .totals-table-wrapper {
     min-inline-size: 100%;

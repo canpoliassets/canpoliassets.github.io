@@ -29,6 +29,16 @@
         "title": "Mon député est-il un propriétaire?",
         "notices": ["Toutes les données proviennent des travaux d'Isaac Peltz. Les données sont limitées."]
     },
+    "mb": {
+        "title": "Mon député est-il un propriétaire?",
+        "dataSource": {
+            "href": "https://ethicsmanitoba.ca/PublicDisclosure/SearchMember",
+            "label": "Bureau du commissaire à l'éthique"
+        },
+        "notices": [
+            "Les divulgations éthiques ont été résumées par un LLM AI - veuillez consulter les divulgations originales pour confirmer l'exactitude des détails spécifiques."
+        ]
+    },
     "allDataSourcedFrom": "Toutes les données proviennent de <a href=\"{{sourceLink}}\">{{sourceLabel}}</a>",
     "contactEmail": "mplandlordcheck [ at ] protonmail [ dot ] com",
     "all": "Toutes",

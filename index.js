@@ -28,6 +28,9 @@ const QUEBEC_DISCLOSURES = database.collection('quebec_disclosures');
 const NEWFOUNDLAND_MHAS = database.collection('newfoundland_mhas');
 const NEWFOUNDLAND_DISCLOSURES = database.collection('newfoundland_disclosures');
 
+const MANITOBA_MLAS = database.collection('manitoba_mlas');
+const MANITOBA_DISCLOSURES = database.collection('manitoba_disclosures');
+
 const COLLATION = { collation : {locale: "fr_CA", strength: 2 }}
 
 const app = express();
@@ -233,6 +236,31 @@ const PROVINCES = {
             return member;
         },
     },
+    mb: {
+        collection: MANITOBA_MLAS,
+        portraitPath: "mb_mla_images",
+        disclosureCollection: "manitoba_disclosures",
+        mapDisclosures: member => {
+            for (const disclosure of member.disclosures) { 
+                if (disclosure.content.includes("Real Property:")) member.homeowner = true;
+                if (disclosure.content.includes("Mortgages:")) member.homeowner = true;
+                if (disclosure.content.includes("Rental Properties and Rental Income")) member.landlord = true;
+                if (disclosure.content.includes("Rental income")) member.landlord = true;
+                if (disclosure.content.includes("interest in a rental property")) member.landlord = true;
+                if (disclosure.content.includes("secondary residence")) member.landlord = true;
+                if (disclosure.content.includes("No rental properties")) member.landlord = false;
+                if (disclosure.content.includes("No rental income")) member.landlord = false;
+                if (disclosure.content.includes("Investments and Mutual Funds")) member.investor = true;
+                if (disclosure.content.includes("Interests in Private Corporations:") && 
+                !disclosure.content.includes("No interests in private corporations")) member.investor = true;
+                if (disclosure.content.includes("ETF is held")) member.investor = true;
+                if (disclosure.content.includes("Shares are held")) member.investor = true;
+                if (disclosure.content.includes("Shares in")) member.investor = true;
+                if (disclosure.content.includes("shareholding interest")) member.investor = true;           
+            }
+            return member;
+        },
+    },
 };
 
 app.get("/:lang/:province", async (req, res, next) => {
@@ -426,6 +454,48 @@ app.get('/:lang/nl/:constituency', async (req, res) => {
         homeowner: englishHomeTextGenerator(mha['name'], "Homeowner", homeowner),
         landlord: englishHomeTextGenerator(mha['name'], "Landlord", landlord),
         investor: englishInvestorTextGenerator(mha['name'], investor),
+    });
+});
+
+/* MANITOBA */
+app.get('/:lang/mb/:constituency', async (req, res) => {
+    const { lang, constituency: constituency_slug } = req.params;
+
+    if (lang === "fr") return res.redirect(307, `/en/ab/${constituency_slug}`);
+
+    let mla = await MANITOBA_MLAS.findOne({ constituency_slug }, COLLATION);
+    let disclosures = await MANITOBA_DISCLOSURES.find({ name: mla.name }, COLLATION).sort({ category: 1 }).toArray();
+
+    let homeowner = false;
+    let landlord = false;
+    let investor = false;
+    for (let i=0; i<disclosures.length;++i) {
+        if (disclosures[i]['content'].includes("Real Property:")) homeowner = true;
+        if (disclosures[i]['content'].includes("Mortgages:")) homeowner = true;
+        if (disclosures[i]['content'].includes("Rental Properties and Rental Income")) landlord = true;
+        if (disclosures[i]['content'].includes("Rental income")) landlord = true;
+        if (disclosures[i]['content'].includes("interest in a rental property")) landlord = true;
+        if (disclosures[i]['content'].includes("secondary residence")) landlord = true;
+        if (disclosures[i]['content'].includes("No rental properties")) landlord = false;
+        if (disclosures[i]['content'].includes("No rental income")) landlord = false;
+        if (disclosures[i]['content'].includes("Investments and Mutual Funds")) investor = true;
+        if (disclosures[i]['content'].includes("Interests in Private Corporations:") &&
+        !disclosures[i]['content'].includes("No interests in private corporations")) investor = true;
+        if (disclosures[i]['content'].includes("ETF is held")) investor = true;
+        if (disclosures[i]['content'].includes("Shares are held")) investor = true;
+        if (disclosures[i]['content'].includes("Shares in")) investor = true;
+        if (disclosures[i]['content'].includes("shareholding interest")) investor = true;
+    }
+
+    res.render('member', {
+        title: 'Member Details',
+        siteTitle: req.i18n.t("mb.title"),
+        portraitPath: "mb_mla_images",
+        ...mla,
+        groupedDisclosures: groupDisclosures(disclosures),
+        homeowner: englishHomeTextGenerator(mla['name'], "Homeowner", homeowner),
+        landlord: englishHomeTextGenerator(mla['name'], "Landlord", landlord),
+        investor: englishInvestorTextGenerator(mla['name'], investor),
     });
 });
 

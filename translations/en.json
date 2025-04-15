@@ -36,6 +36,16 @@
             "All data sourced from the work of Isaac Peltz. Data is limited."
         ]
     },
+    "mb": {
+        "title": "Is My MLA a Landlord?",
+        "dataSource": {
+            "href": "https://ethicsmanitoba.ca/PublicDisclosure/SearchMember",
+            "label": "Office of the Ethics Commissioner"
+        },
+        "notices": [
+            "Ethics Disclosures have been summarized via an AI LLM - please consult the original disclosures to confirm accuracy of specific details."
+        ]
+    },
     "allDataSourcedFrom": "All data sourced from the <a href=\"{{sourceLink}}\">{{sourceLabel}}</a>",
     "contactEmail": "mplandlordcheck [ at ] protonmail [ dot ] com",
     "all": "All",
