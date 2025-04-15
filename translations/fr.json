@@ -39,6 +39,16 @@
             "Les divulgations éthiques ont été résumées par un LLM AI - veuillez consulter les divulgations originales pour confirmer l'exactitude des détails spécifiques."
         ]
     },
+    "ns": {
+        "title": "Mon député est-il un propriétaire?",
+        "dataSource": {
+            "href": "https://nslegislature.ca/sites/default/files/pdfs/committees/hamc/MLADisclosureStatements.pdf",
+            "label": "La Législature de la Nouvelle-Écosse"
+        },
+        "notices": [
+            "Plusieurs députés n'ont pas déposé de déclaration ou l'ont laissée en blanc."
+        ]
+    },
     "allDataSourcedFrom": "Toutes les données proviennent de <a href=\"{{sourceLink}}\">{{sourceLabel}}</a>",
     "contactEmail": "mplandlordcheck [ at ] protonmail [ dot ] com",
     "all": "Toutes",

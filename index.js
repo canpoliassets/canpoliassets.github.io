@@ -31,6 +31,9 @@ const NEWFOUNDLAND_DISCLOSURES = database.collection('newfoundland_disclosures')
 const MANITOBA_MLAS = database.collection('manitoba_mlas');
 const MANITOBA_DISCLOSURES = database.collection('manitoba_disclosures');
 
+const NOVA_SCOTIA_MLAS = database.collection('nova_scotia_mlas');
+const NOVA_SCOTIA_DISCLOSURES = database.collection('nova_scotia_disclosures');
+
 const COLLATION = { collation : {locale: "fr_CA", strength: 2 }}
 
 const app = express();
@@ -257,6 +260,23 @@ const PROVINCES = {
                 if (disclosure.content.includes("Shares are held")) member.investor = true;
                 if (disclosure.content.includes("Shares in")) member.investor = true;
                 if (disclosure.content.includes("shareholding interest")) member.investor = true;           
+            }
+            return member;
+        },
+    },
+    ns: {
+        collection: NOVA_SCOTIA_MLAS,
+        portraitPath: "ns_mla_images",
+        disclosureCollection: "nova_scotia_disclosures",
+        mapDisclosures: member => {
+            for (const disclosure of member.disclosures) { 
+                if (disclosure.category.includes("Property")) member.homeowner = true;
+                if (disclosure.content.includes("Mortgate")) member.homeowner = true;
+                if (disclosure.content.includes("Rental")) member.landlord = true;
+                if (disclosure.content.includes("Landlord")) member.landlord = true;
+                if (disclosure.category.includes("Corporate Interests")) member.investor = true;
+                if (disclosure.category.includes("Investments, Mutual Funds, Bonds & Other Securities")) member.investor = true;
+                if (disclosure.category.includes("Trusts Held")) member.investor = true;
             }
             return member;
         },
@@ -491,6 +511,42 @@ app.get('/:lang/mb/:constituency', async (req, res) => {
         title: 'Member Details',
         siteTitle: req.i18n.t("mb.title"),
         portraitPath: "mb_mla_images",
+        ...mla,
+        groupedDisclosures: groupDisclosures(disclosures),
+        homeowner: englishHomeTextGenerator(mla['name'], "Homeowner", homeowner),
+        landlord: englishHomeTextGenerator(mla['name'], "Landlord", landlord),
+        investor: englishInvestorTextGenerator(mla['name'], investor),
+    });
+});
+
+/* NOVA SCOTIA */
+app.get('/:lang/ns/:constituency', async (req, res) => {
+    const { lang, constituency: constituency_slug } = req.params;
+
+    if (lang === "fr") return res.redirect(307, `/en/ns/${constituency_slug}`);
+
+    let mla = await NOVA_SCOTIA_MLAS.findOne({ constituency_slug }, COLLATION);
+    let disclosures = await NOVA_SCOTIA_DISCLOSURES.find({ name: mla.name }, COLLATION).sort({ category: 1 }).toArray();
+
+    let homeowner = false;
+    let landlord = false;
+    let investor = false;
+    for (let i=0; i<disclosures.length;++i) {
+
+        
+        if (disclosures[i]['category'].includes("Property")) homeowner = true;
+        if (disclosures[i]['content'].includes("Mortgate")) homeowner = true;
+        if (disclosures[i]['content'].includes("Rental")) landlord = true;
+        if (disclosures[i]['content'].includes("Landlord")) landlord = true;
+        if (disclosures[i]['category'].includes("Corporate Interests")) investor = true;
+        if (disclosures[i]['category'].includes("Investments, Mutual Funds, Bonds & Other Securities")) investor = true;
+        if (disclosures[i]['category'].includes("Trusts Held")) investor = true;
+    }
+
+    res.render('member', {
+        title: 'Member Details',
+        siteTitle: req.i18n.t("ns.title"),
+        portraitPath: "ns_mla_images",
         ...mla,
         groupedDisclosures: groupDisclosures(disclosures),
         homeowner: englishHomeTextGenerator(mla['name'], "Homeowner", homeowner),
