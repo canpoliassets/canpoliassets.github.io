@@ -245,6 +245,7 @@ const PROVINCES = {
                 if (disclosure.content.includes("Mortgages:")) member.homeowner = true;
                 if (disclosure.content.includes("Rental Properties and Rental Income")) member.landlord = true;
                 if (disclosure.content.includes("Rental income")) member.landlord = true;
+                if (disclosure.content.includes("interest in a rental property")) member.landlord = true;
                 if (disclosure.content.includes("No rental properties or rental income were listed")) member.landlord = false;
                 if (disclosure.content.includes("Investments and Mutual Funds")) member.investor = true;
                 if (disclosure.content.includes("Interests in Private Corporations:") && 
@@ -252,6 +253,7 @@ const PROVINCES = {
                 if (disclosure.content.includes("ETF is held")) member.investor = true;
                 if (disclosure.content.includes("Shares are held")) member.investor = true;
                 if (disclosure.content.includes("Shares in")) member.investor = true;
+                if (disclosure.content.includes("shareholding interest")) member.investor = true;           
             }
             return member;
         },
@@ -469,6 +471,7 @@ app.get('/:lang/mb/:constituency', async (req, res) => {
         if (disclosures[i]['content'].includes("Mortgages:")) homeowner = true;
         if (disclosures[i]['content'].includes("Rental Properties and Rental Income")) landlord = true;
         if (disclosures[i]['content'].includes("Rental income")) landlord = true;
+        if (disclosures[i]['content'].includes("interest in a rental property")) landlord = true;
         if (disclosures[i]['content'].includes("No rental properties or rental income were listed")) landlord = false;
         if (disclosures[i]['content'].includes("Investments and Mutual Funds")) investor = true;
         if (disclosures[i]['content'].includes("Interests in Private Corporations:") &&
@@ -476,6 +479,7 @@ app.get('/:lang/mb/:constituency', async (req, res) => {
         if (disclosures[i]['content'].includes("ETF is held")) investor = true;
         if (disclosures[i]['content'].includes("Shares are held")) investor = true;
         if (disclosures[i]['content'].includes("Shares in")) investor = true;
+        if (disclosures[i]['content'].includes("shareholding interest")) investor = true;
     }
 
     res.render('member', {
