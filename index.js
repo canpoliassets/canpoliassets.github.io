@@ -246,7 +246,9 @@ const PROVINCES = {
                 if (disclosure.content.includes("Rental Properties and Rental Income")) member.landlord = true;
                 if (disclosure.content.includes("Rental income")) member.landlord = true;
                 if (disclosure.content.includes("interest in a rental property")) member.landlord = true;
-                if (disclosure.content.includes("No rental properties or rental income were listed")) member.landlord = false;
+                if (disclosure.content.includes("secondary residence")) member.landlord = true;
+                if (disclosure.content.includes("No rental properties")) member.landlord = false;
+                if (disclosure.content.includes("No rental income")) member.landlord = false;
                 if (disclosure.content.includes("Investments and Mutual Funds")) member.investor = true;
                 if (disclosure.content.includes("Interests in Private Corporations:") && 
                 !disclosure.content.includes("No interests in private corporations")) member.investor = true;
@@ -472,7 +474,9 @@ app.get('/:lang/mb/:constituency', async (req, res) => {
         if (disclosures[i]['content'].includes("Rental Properties and Rental Income")) landlord = true;
         if (disclosures[i]['content'].includes("Rental income")) landlord = true;
         if (disclosures[i]['content'].includes("interest in a rental property")) landlord = true;
-        if (disclosures[i]['content'].includes("No rental properties or rental income were listed")) landlord = false;
+        if (disclosures[i]['content'].includes("secondary residence")) landlord = true;
+        if (disclosures[i]['content'].includes("No rental properties")) landlord = false;
+        if (disclosures[i]['content'].includes("No rental income")) landlord = false;
         if (disclosures[i]['content'].includes("Investments and Mutual Funds")) investor = true;
         if (disclosures[i]['content'].includes("Interests in Private Corporations:") &&
         !disclosures[i]['content'].includes("No interests in private corporations")) investor = true;
