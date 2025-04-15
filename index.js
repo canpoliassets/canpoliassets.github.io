@@ -274,6 +274,8 @@ const PROVINCES = {
                 if (disclosure.content.includes("Mortgate")) member.homeowner = true;
                 if (disclosure.content.includes("Rental")) member.landlord = true;
                 if (disclosure.content.includes("Landlord")) member.landlord = true;
+                if (disclosure.category.includes("Property") &&
+                !disclosure.content.includes("Home -")) member.landlord = true;
                 if (disclosure.category.includes("Corporate Interests")) member.investor = true;
                 if (disclosure.category.includes("Investments, Mutual Funds, Bonds & Other Securities")) member.investor = true;
                 if (disclosure.category.includes("Trusts Held")) member.investor = true;
@@ -532,12 +534,12 @@ app.get('/:lang/ns/:constituency', async (req, res) => {
     let landlord = false;
     let investor = false;
     for (let i=0; i<disclosures.length;++i) {
-
-        
         if (disclosures[i]['category'].includes("Property")) homeowner = true;
         if (disclosures[i]['content'].includes("Mortgate")) homeowner = true;
         if (disclosures[i]['content'].includes("Rental")) landlord = true;
         if (disclosures[i]['content'].includes("Landlord")) landlord = true;
+        if (disclosures[i]['category'].includes("Property") &&
+        !disclosures[i]['content'].includes("Home -")) landlord = true;
         if (disclosures[i]['category'].includes("Corporate Interests")) investor = true;
         if (disclosures[i]['category'].includes("Investments, Mutual Funds, Bonds & Other Securities")) investor = true;
         if (disclosures[i]['category'].includes("Trusts Held")) investor = true;
