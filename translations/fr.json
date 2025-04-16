@@ -49,6 +49,13 @@
             "Plusieurs députés n'ont pas déposé de déclaration ou l'ont laissée en blanc."
         ]
     },
+    "pe": {
+        "title": "Mon député est-il un propriétaire?",
+        "dataSource": {
+            "href": "https://www.assembly.pe.ca/offices/conflict-of-interest-commissioner/mla-public-disclosure-statements",
+            "label": "Assemblée législative de l'Île-du-Prince-Édouard"
+        }
+    },
     "allDataSourcedFrom": "Toutes les données proviennent de <a href=\"{{sourceLink}}\">{{sourceLabel}}</a>",
     "contactEmail": "mplandlordcheck [ at ] protonmail [ dot ] com",
     "all": "Toutes",
