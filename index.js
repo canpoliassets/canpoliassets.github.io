@@ -34,6 +34,9 @@ const MANITOBA_DISCLOSURES = database.collection('manitoba_disclosures');
 const NOVA_SCOTIA_MLAS = database.collection('nova_scotia_mlas');
 const NOVA_SCOTIA_DISCLOSURES = database.collection('nova_scotia_disclosures');
 
+const PEI_MLAS = database.collection('pei_mlas');
+const PEI_DISCLOSURES = database.collection('pei_disclosures');
+
 const COLLATION = { collation : {locale: "fr_CA", strength: 2 }}
 
 const app = express();
@@ -271,7 +274,7 @@ const PROVINCES = {
         mapDisclosures: member => {
             for (const disclosure of member.disclosures) { 
                 if (disclosure.category.includes("Property")) member.homeowner = true;
-                if (disclosure.content.includes("Mortgate")) member.homeowner = true;
+                if (disclosure.content.includes("Mortgage")) member.homeowner = true;
                 if (disclosure.content.includes("Rental")) member.landlord = true;
                 if (disclosure.content.includes("Landlord")) member.landlord = true;
                 if (disclosure.category.includes("Property") &&
@@ -279,6 +282,25 @@ const PROVINCES = {
                 if (disclosure.category.includes("Corporate Interests")) member.investor = true;
                 if (disclosure.category.includes("Investments, Mutual Funds, Bonds & Other Securities")) member.investor = true;
                 if (disclosure.category.includes("Trusts Held")) member.investor = true;
+            }
+            return member;
+        },
+    },
+    pe: {
+        collection: PEI_MLAS,
+        portraitPath: "pe_mla_images",
+        disclosureCollection: "pei_disclosures",
+        mapDisclosures: member => {
+            for (const disclosure of member.disclosures) { 
+                if (disclosure['category'] == 'Assets' && disclosure['content'].includes('PID')) {
+                    member.landlord = true;
+                }
+                if (disclosure['category'] == 'Offices & Directorships') {
+                    member.investor = true;
+                }
+                if (disclosure['category'] == 'Assets' && !disclosure['content'].includes('PID')) {
+                    member.investor = true;
+                }
             }
             return member;
         },
@@ -549,6 +571,42 @@ app.get('/:lang/ns/:constituency', async (req, res) => {
         title: 'Member Details',
         siteTitle: req.i18n.t("ns.title"),
         portraitPath: "ns_mla_images",
+        ...mla,
+        groupedDisclosures: groupDisclosures(disclosures),
+        homeowner: englishHomeTextGenerator(mla['name'], "Homeowner", homeowner),
+        landlord: englishHomeTextGenerator(mla['name'], "Landlord", landlord),
+        investor: englishInvestorTextGenerator(mla['name'], investor),
+    });
+});
+
+/* PRINCE EDWARD ISLAND */
+app.get('/:lang/pe/:constituency', async (req, res) => {
+    const { lang, constituency: constituency_slug } = req.params;
+
+    if (lang === "fr") return res.redirect(307, `/en/pe/${constituency_slug}`);
+
+    let mla = await PEI_MLAS.findOne({ constituency_slug }, COLLATION);
+    let disclosures = await PEI_DISCLOSURES.find({ name: mla.name }, COLLATION).sort({ category: 1 }).toArray();
+
+    let homeowner = true; // Research suggests this to be true, and they are not required to disclose personal property. Can pivot with better data later.
+    let landlord = false;
+    let investor = false;
+    for (let i=0; i<disclosures.length;++i) {
+        if (disclosures[i]['category'] == 'Assets' && disclosures[i]['content'].includes('PID')) {
+            landlord = true;
+        }
+        if (disclosures[i]['category'] == 'Offices & Directorships') {
+            investor = true;
+        }
+        if (disclosures[i]['category'] == 'Assets' && !disclosures[i]['content'].includes('PID')) {
+            investor = true;
+        }
+    }
+
+    res.render('member', {
+        title: 'Member Details',
+        siteTitle: req.i18n.t("pe.title"),
+        portraitPath: "pe_mla_images",
         ...mla,
         groupedDisclosures: groupDisclosures(disclosures),
         homeowner: englishHomeTextGenerator(mla['name'], "Homeowner", homeowner),
