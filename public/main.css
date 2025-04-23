@@ -17,6 +17,12 @@
     select {
         field-sizing: content;
     }
+
+    @supports not (field-sizing: content) {
+        select {
+            inline-size: clamp(6rem, 60cqi, 12rem);
+        }
+    }
 }
 
 @layer base {
