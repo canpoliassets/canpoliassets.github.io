@@ -71,6 +71,11 @@ app.use("/:lang", (req, res, next) => {
     req.collator = new Intl.Collator(`${lang}-ca`).compare;
 
     res.locals.lang = lang;
+    res.locals.formatPercentage = new Intl.NumberFormat(`${lang}-ca`, {
+        style: "percent",
+        trailingZeroDisplay: "stripIfInteger",
+        minimumFractionDigits: 2,
+    }).format;
 
     next();
 });

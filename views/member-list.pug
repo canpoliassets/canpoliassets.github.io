@@ -69,14 +69,14 @@ block main
                 th(scope="row")=party
                 td=memberCount
                 td=landlordCount
-                td #{(landlordCount / memberCount * 100).toFixed(2)}%
+                td=formatPercentage(landlordCount / memberCount)
           tfoot
             - const memberCount = members.length
             - const landlordCount = members.filter(member => member.landlord).length
             th(scope="row")=t("allParties")
             td=memberCount
             td=landlordCount
-            td #{(landlordCount / memberCount * 100).toFixed(2)}%
+            td=formatPercentage(landlordCount / memberCount)
 
   form(name="filters")
     if parties
