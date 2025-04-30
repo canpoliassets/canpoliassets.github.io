@@ -2,8 +2,8 @@
 local/data/
 node_modules/
 *.txt
-*.py
 fly.toml
 .dockerignore
 Dockerfile
 .vscode
+data-acquisition/private/
