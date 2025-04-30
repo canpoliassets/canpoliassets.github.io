@@ -1,7 +1,18 @@
+import pymongo
 import html
 
+env = open('.env')
+mongo_uri=''
+for line in env:
+    if line.startswith('MONGO_URI'):
+        mongo_uri = line.split('MONGO_URI=')[1].replace("'", "")
+
+myclient = pymongo.MongoClient(mongo_uri)
+mydb = myclient["public_gov"]
+mps = mydb["mps"]
+
 base_url = 'https://www.ourcommons.ca/'
-f = open('parliament.html')
+f = open('parliament.html') # Save a copy to your local and run it against that.
 
 name = ""
 party = ""
@@ -33,7 +44,7 @@ for line in f.readlines():
             'province': province,
             'image_name': image_name,
         }
-    
-        # Insert MP_Object into whatever table / format you need.
+        # print(mp_object)
+        mps.insert_one(mp_object)
 
     
