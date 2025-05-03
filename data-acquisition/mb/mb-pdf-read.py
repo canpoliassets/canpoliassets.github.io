@@ -1,73 +1,231 @@
 from pypdf import PdfReader
-import openai
+import pymupdf # imports the pymupdf library
+import sys
+import re
+sys.stdout.reconfigure(encoding='utf-8')
+pattern = r'^\d{4}/(0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[01])$'
 
-PROMPT = "The provided text is an ethics disclosure for a Canadian politician. Summarize the following text, with an emphasis on itemizing the declared assets, sponsored travel, mutual funds and investments and rental and residential properties owned. Present the content in a passive tone and separate spousal and family assets from the assets of the politician. Do not miss any critical details from the summary. Include mortages in their own category. Include rental properties and rental income in their own category. Include investments and mutual funds in their own category."
-env = open('.env')
-gemini_key=''
-for line in env:
-    if line.startswith('GEMINI_KEY'):
-        gemini_key = line.split('GEMINI_KEY=')[1].replace("'", "")
+def print_content(category, content, name):
+    if content != '' and not content.startswith("Name of "):
+        print({
+            'name': name,
+            'category': category,
+            'content': content
+        })
 
-def summarize_text(text):
-    client = openai.OpenAI(
-        api_key=gemini_key,
-        base_url="https://generativelanguage.googleapis.com/v1beta/openai/"  # Note: v1beta, not v1main
-    )
-    
-    response = client.chat.completions.create(
-        model="gemini-2.0-flash",  # Use flash model instead of base
-        messages=[
-            {"role": "system", "content": PROMPT},
-            {"role": "user", "content": text}
-        ],
-        temperature=0.3,
-        max_tokens=1000
-    )
-    
-    return response.choices[0].message.content
-
-def read_pdf_basic(pdf_path):
+def read_pdf_basic(pdf_path, name):
     # Create a reader object
-    reader = PdfReader(pdf_path)
-    
+    reader = pymupdf.open(pdf_path)
+
     # Extract text from second page
     text = ""
-    for page in reader.pages:
-        text += page.extract_text()
+    for page in reader:
+        text += page.get_text()
 
-    # print(text)
+    lines = text.split("\n")
+    category = ""
+    content = ""
+    active = False
+    applicable = False
+    for line in lines:
+        # print(line)
+        if re.match(pattern, line):
+            continue
 
-    print(summarize_text(text))
+        if line.startswith("Not Applicable: Yes"):
+            applicable = False
+            active = False
+            category = ""
+            content = ""
+            continue
 
-    # lines = text.split("\n")
-    # category = ""
-    # content = ""
-    # active = False
-    # for line in lines:
-    #     if line.startswith("Not Applicable: Yes"):
-    #         category = ""
-    #         content = ""
-    #         continue
+        if line.startswith("Not Applicable: No"):
+            applicable = True
+            active = False
+            continue
 
-    #     if line.startswith("A3"):
-    #         category = "Directorships"
-    #         continue
+        if line.startswith("A3"):
+            category = "Directorships"
+            applicable = False
+            active = False
+            continue
 
+        if line.startswith("B1"):
+            category = "Real Property Interests"
+            applicable = False
+            active = False
+            continue
 
+        if line.startswith("B2"):
+            category = "Money Owed and Secured by a Mortgage on Real Property"
+            applicable = False
+            active = False
+            continue
 
+        if line.startswith("B3"):
+            category = "Money Owed and Secured by Personal Property"
+            applicable = False
+            active = False
+            continue
 
-    # category = ""
-    # content = ""
-    # active = False
-    # for line in text.split("\n"):
-    #     line = line.replace("\uf0a7", "▪")
+        if line.startswith("B4"):
+            category = "Other Money Owed"
+            applicable = False
+            active = False
+            continue
 
-    #     if line.startswith("Nature et source des rev"):
-    #         category = "Revenus"
-    #         content = ""
-    #         active = False
-    #         continue
-# Name of corporation or organizationPosition held M S D Date of Change
+        if line.startswith("B5"):
+            category = "Mutual Funds, ETFs and Other Funds"
+            applicable = False
+            active = False
+            continue
 
-read_pdf_basic("Kinew%20Wab_Fort%20Rouge_2025-02-07T16_50_32.4227749-V2.1.pdf")
-# read_pdf_basic("Moyes%20Mike_Riel_2025-03-03T11_58_21.7466189-V2.1.pdf")
+        if line.startswith("B6"):
+            category = "Securities and Other Interests in Public Corporations"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("B7"):
+            category = "Interests in Private Corporations"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("B8"):
+            category = "Contracts with the Government of Manitoba"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("B9"):
+            category = "Other Private Business Interests"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("B10"):
+            category = "Trust Property"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("B11"):
+            category = "Guarantees"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("B12"):
+            category = "Other Assets"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("B13"):
+            category = "Assets Held in Commissioner Approved Trust"
+            applicable = False
+            active = False
+            continue
+
+        if category == "Assets Held in Commissioner Approved Trust" and "Yes" in line:
+            print_content(category, "Yes", name)
+            continue
+
+        if line.startswith("C1"):
+            category = "Employment"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("C2"):
+            category = "Business or Profession"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("C3"):
+            category = "Other Renumerations"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("D1"):
+            category = "Mortgages"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("D2"):
+            category = "Guarantees"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("D3"):
+            category = "Unpaid Municipal Property Taxes"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("D4"):
+            category = "Other Unpaid Taxes"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("D5"):
+            category = "Support Payments"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("D6"):
+            category = "Other Liabilities"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("E1"):
+            category = "Legal Proceedings"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("E2"):
+            # Print Legal Proceedings from previous.
+            if applicable == True and active == True:
+                print_content(category, content, name)
+                content = ""
+            category = "Activities Approved by the Commissioner"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("Date of Change") and applicable == True:
+            active = True
+            continue
+
+        # Clear Spousal / Dependent Content
+        if line == "S" and applicable == True and active == True:
+            print_content(category +" (Spouse)", content, name)
+            # active = False
+            content = ""
+            continue
+
+        if line == "D" and applicable == True and active == True:
+            print_content(category +" (Dependent)", content, name)
+            # active = False
+            content = ""
+            continue
+        
+        if line == "M" and applicable == True and active == True:
+            print_content(category, content, name)
+            # active = False
+            content = ""
+            continue
+
+        if active == True and applicable == True:
+            content += line + "\n"
+
+read_pdf_basic("Nesbitt%20Greg_Riding%20Mountain_2025-03-24T13_32_02.5043472-V2.2.pdf", "jeff")

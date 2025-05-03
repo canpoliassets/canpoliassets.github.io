@@ -4,30 +4,23 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from urllib.request import urlretrieve
-# from PyPDF2 import PdfReader
-from pypdf import PdfReader
 from time import sleep
 import sys
 import pymongo
-import openai
+import pymupdf
+import re
+
+pattern = r'^\d{4}/(0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[01])$'
 sys.stdout.reconfigure(encoding='utf-8')
 from selenium.webdriver.common.action_chains import ActionChains
 
-# Mongo Key
-env = open('.env')
+# Mongo Connection
+env = open('../../.env')
 mongo_uri=''
 for line in env:
     if line.startswith('MONGO_URI'):
         mongo_uri = line.split('MONGO_URI=')[1].replace("'", "")
 
-# Gemini Key
-PROMPT = "The provided text is an ethics disclosure for a Canadian politician. Summarize the following text, with an emphasis on itemizing the declared assets, sponsored travel, mutual funds and investments and rental and residential properties owned. Present the content in a passive tone and separate spousal and family assets from the assets of the politician. Do not miss any critical details from the summary. Include mortages in their own category. Include rental properties and rental income in their own category. Include investments and mutual funds in their own category."
-gemini_key=''
-for line in env:
-    if line.startswith('GEMINI_KEY'):
-        gemini_key = line.split('GEMINI_KEY=')[1].replace("'", "")
-
-# Mongo Connection
 myclient = pymongo.MongoClient(mongo_uri)
 mydb = myclient["public_gov"]
 
@@ -43,25 +36,6 @@ def force_click(driver, element):
     actions.move_to_element(element)
     actions.click(element)
     actions.perform()
-
-# This did a terrible job.
-# Never using AI for this again.
-def summarize_text(text):
-    client = openai.OpenAI(
-        api_key='KEY GOES HERE',
-        base_url="https://generativelanguage.googleapis.com/v1beta/openai/"  # Note: v1beta, not v1main
-    )
-    
-    response = client.chat.completions.create(
-        model="gemini-2.0-flash",  # Use flash model instead of base
-        messages=[
-            {"role": "system", "content": PROMPT},
-            {"role": "user", "content": text}
-        ],
-        temperature=0.3,
-        max_tokens=3000
-    )
-    return response.choices[0].message.content
     
 # Set up the driver
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
@@ -111,7 +85,7 @@ for i in range(1, 60):
 
     if mla_exists is None:
         # print(f'Could not find MLA {corrected_name} in the database')
-        print('$$--$$')
+        print('$$--$$', corrected_name)
         continue
 
     sleep(0.5)
@@ -133,27 +107,229 @@ for i in range(1, 60):
 
 sleep(1)
 
-def print_object(name, category, content, pdf_url):
-    
-    # do formatting here
+def print_content(category, content, name):
+    # Second check catches page overflow cases, and doesn't remove relevant content.
+    if content != '' and not content.startswith("Name of "):
+        print({
+            'name': name,
+            'category': category,
+            'content': content
+        })
 
-    print({
-        'name': name,
-        'category': category,
-        'content': content,
-        'pdf_url': base_ethics_url+pdf_url,
-    })
-
-def read_pdf_basic(pdf_path):
+def read_pdf_basic(pdf_path, name):
     # Create a reader object
-    reader = PdfReader(pdf_path)
-    
+    reader = pymupdf.open(pdf_path)
+
     # Extract text from second page
     text = ""
-    for page in reader.pages:
-        text += page.extract_text()
+    for page in reader:
+        text += page.get_text()
 
-    return summarize_text(text) # Need a better solution than using a crap LLM.
+    lines = text.split("\n")
+    category = ""
+    content = ""
+    active = False
+    applicable = False
+    for line in lines:
+        # print(line)
+        if re.match(pattern, line):
+            continue
+
+        if line.startswith("Not Applicable: Yes"):
+            applicable = False
+            active = False
+            category = ""
+            content = ""
+            continue
+
+        if line.startswith("Not Applicable: No"):
+            applicable = True
+            active = False
+            continue
+
+        if line.startswith("A3"):
+            category = "Directorships"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("B1"):
+            category = "Real Property Interests"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("B2"):
+            category = "Money Owed and Secured by a Mortgage on Real Property"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("B3"):
+            category = "Money Owed and Secured by Personal Property"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("B4"):
+            category = "Other Money Owed"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("B5"):
+            category = "Mutual Funds, ETFs and Other Funds"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("B6"):
+            category = "Securities and Other Interests in Public Corporations"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("B7"):
+            category = "Interests in Private Corporations"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("B8"):
+            category = "Contracts with the Government of Manitoba"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("B9"):
+            category = "Other Private Business Interests"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("B10"):
+            category = "Trust Property"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("B11"):
+            category = "Guarantees"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("B12"):
+            category = "Other Assets"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("B13"):
+            category = "Assets Held in Commissioner Approved Trust"
+            applicable = False
+            active = False
+            continue
+
+        if category == "Assets Held in Commissioner Approved Trust" and "Yes" in line:
+            print_content(category, "Yes", name)
+            continue
+
+        if line.startswith("C1"):
+            category = "Employment"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("C2"):
+            category = "Business or Profession"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("C3"):
+            category = "Other Renumerations"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("D1"):
+            category = "Mortgages"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("D2"):
+            category = "Guarantees"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("D3"):
+            category = "Unpaid Municipal Property Taxes"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("D4"):
+            category = "Other Unpaid Taxes"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("D5"):
+            category = "Support Payments"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("D6"):
+            category = "Other Liabilities"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("E1"):
+            category = "Legal Proceedings"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("E2"):
+            # Print Legal Proceedings from previous.
+            if applicable == True and active == True:
+                print_content(category, content, name)
+                content = ""
+            category = "Activities Approved by the Commissioner"
+            applicable = False
+            active = False
+            continue
+
+        if line.startswith("Date of Change") and applicable == True:
+            active = True
+            continue
+
+        # Clear Spousal / Dependent Content
+        if line == "S" and applicable == True and active == True:
+            print_content(category +" (Spouse)", content, name)
+            # active = False
+            content = ""
+            continue
+
+        if line == "D" and applicable == True and active == True:
+            print_content(category +" (Dependent)", content, name)
+            # active = False
+            content = ""
+            continue
+        
+        if line == "M" and applicable == True and active == True:
+            print_content(category, content, name)
+            # active = False
+            content = ""
+            continue
+
+        if active == True and applicable == True:
+            content += line + "\n"
 
 for name in name_list:
-    print_object(name, 'AI Summary', read_pdf_basic(name_to_pdf_dict[name]), name_to_pdf_dict[name])
+    read_pdf_basic(name_to_pdf_dict[name], name)

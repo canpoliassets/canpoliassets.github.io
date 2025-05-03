@@ -4,7 +4,10 @@
         "dataSource": {
             "href": "https://prciec-rpccie.parl.gc.ca/EN/PublicRegistries/Pages/PublicRegistry.aspx",
             "label": "Office of Conflict of Interest and Ethics Commissioner"
-        }
+        },
+        "notices": [
+            "Data reflects the previous parliament, and is not up to date with the latest election. We expect new disclosures to be available within ~60 days of the election."
+        ]
     },
     "ab": {
         "title": "Is My MLA a Landlord?",
@@ -20,7 +23,7 @@
             "label": "Office of the Integrity Commissioner"
         },
         "notices": [
-            "(NOTE: Data reflects the previous parliament, and is not up to date with the latest election. Once new ethics disclosures are filed, we will update this page.)"
+            "Data reflects the previous parliament, and is not up to date with the latest election. Once new ethics disclosures are filed, we will update this page."
         ]
     },
     "qc": {
@@ -42,9 +45,7 @@
             "href": "https://ethicsmanitoba.ca/PublicDisclosure/SearchMember",
             "label": "Office of the Ethics Commissioner"
         },
-        "notices": [
-            "Ethics Disclosures have been summarized via an AI LLM - please consult the original disclosures to confirm accuracy of specific details."
-        ]
+        "notices": []
     },
     "ns": {
         "title": "Is My MLA a Landlord?",
@@ -53,7 +54,7 @@
             "label": "Nova Scotia Legislature"
         },
         "notices": [
-            "Multiple MLAs did not file disclosures or left them blank."
+            "Nova Scotia disclosures are not as thorough as other jurisdictions. The contents of the disclosures are accurate, but we are working to improve how we define and flag landlords for this province."
         ]
     },
     "pe": {
@@ -61,7 +62,10 @@
         "dataSource": {
             "href": "https://www.assembly.pe.ca/offices/conflict-of-interest-commissioner/mla-public-disclosure-statements",
             "label": "Legislative Assembly of Prince Edward Island"
-        }
+        },
+        "notices": [
+            "PEI disclosures are not as thorough as other jurisdictions. The contents of the disclosures are accurate, but we are working to improve how we define and flag landlords for this province."
+        ]
     },
     "allDataSourcedFrom": "All data sourced from the <a href=\"{{sourceLink}}\">{{sourceLabel}}</a>",
     "contactEmail": "mplandlordcheck [ at ] protonmail [ dot ] com",

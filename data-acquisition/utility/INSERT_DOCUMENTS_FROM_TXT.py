@@ -7,7 +7,7 @@ import ast
 import sys
 sys.stdout.reconfigure(encoding='utf-16')
 
-env = open('.env')
+env = open('../../.env')
 mongo_uri=''
 for line in env:
     if line.startswith('MONGO_URI'):
@@ -17,10 +17,10 @@ myclient = pymongo.MongoClient(mongo_uri)
 mydb = myclient["public_gov"]
 
 # Table you plan to insert into.
-ACTIVE_TABLE = mydb["nova_scotia_disclosures"]
+ACTIVE_TABLE = mydb["manitoba_disclosures"]
 
 # Text file with your JSON blobs. Chance encoding as needed.
-f = open('ns_disclosures.txt', 'r', encoding='utf-16', errors='replace')
+f = open('final.txt', 'r', encoding='utf-8', errors='replace')
 
 names = []
 for line in f.readlines():
