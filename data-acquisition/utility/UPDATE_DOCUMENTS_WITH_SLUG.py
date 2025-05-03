@@ -5,7 +5,7 @@ from slugify import slugify
 import sys
 sys.stdout.reconfigure(encoding='utf-8')
 
-env = open('.env')
+env = open('../../.env')
 mongo_uri=''
 for line in env:
     if line.startswith('MONGO_URI'):
@@ -14,7 +14,7 @@ for line in env:
 myclient = pymongo.MongoClient(mongo_uri)
 mydb = myclient["public_gov"]
 
-reps = mydb["pei_mlas"] # Chance to relevant table.
+reps = mydb["manitoba_mlas"] # Chance to relevant table.
 
 all_reps = reps.find({})
 

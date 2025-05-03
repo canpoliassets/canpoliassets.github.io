@@ -2,7 +2,10 @@
     "siteTitle": "Mon député est-il un propriétaire?",
     "federal": {
         "href": "https://prciec-rpccie.parl.gc.ca/EN/PublicRegistries/Pages/PublicRegistry.aspx",
-        "label": "le Commissariat aux conflits d'intérêts et à l'éthique"
+        "label": "le Commissariat aux conflits d'intérêts et à l'éthique",
+        "notices": [
+            "Les données reflètent la législature précédente et ne sont pas à jour avec les dernières élections. Nous prévoyons que de nouvelles informations seront disponibles dans les 60 jours suivant les élections."
+        ]
     },
     "ab": {
         "title": "Mon député est-il un propriétaire?",
@@ -35,9 +38,7 @@
             "href": "https://ethicsmanitoba.ca/PublicDisclosure/SearchMember",
             "label": "Bureau du commissaire à l'éthique"
         },
-        "notices": [
-            "Les divulgations éthiques ont été résumées par un LLM AI - veuillez consulter les divulgations originales pour confirmer l'exactitude des détails spécifiques."
-        ]
+        "notices": []
     },
     "ns": {
         "title": "Mon député est-il un propriétaire?",
@@ -46,7 +47,7 @@
             "label": "La Législature de la Nouvelle-Écosse"
         },
         "notices": [
-            "Plusieurs députés n'ont pas déposé de déclaration ou l'ont laissée en blanc."
+            "Les informations fournies par la Nouvelle-Écosse ne sont pas aussi complètes que celles fournies par d'autres juridictions. Le contenu des déclarations est exact, mais nous nous efforçons d'améliorer la façon dont nous définissons et signalons les propriétaires."
         ]
     },
     "pe": {
@@ -54,7 +55,10 @@
         "dataSource": {
             "href": "https://www.assembly.pe.ca/offices/conflict-of-interest-commissioner/mla-public-disclosure-statements",
             "label": "Assemblée législative de l'Île-du-Prince-Édouard"
-        }
+        },
+        "notices": [
+            "Les informations fournies par l'Île-du-Prince-Édouard ne sont pas aussi complètes que celles fournies par d'autres juridictions. Le contenu des déclarations est exact, mais nous nous efforçons d'améliorer la façon dont nous définissons et signalons les propriétaires."
+        ]
     },
     "allDataSourcedFrom": "Toutes les données proviennent de <a href=\"{{sourceLink}}\">{{sourceLabel}}</a>",
     "contactEmail": "mplandlordcheck [ at ] protonmail [ dot ] com",

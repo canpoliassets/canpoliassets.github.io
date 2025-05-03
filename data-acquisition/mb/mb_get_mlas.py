@@ -28,7 +28,7 @@ def download_image(url, filename):
     except Exception as e:
         print(f"An error occurred: {str(e)}")
 
-env = open('.env')
+env = open('../../.env')
 mongo_uri=''
 for line in env:
     if line.startswith('MONGO_URI'):

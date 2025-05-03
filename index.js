@@ -142,7 +142,7 @@ app.get('/:lang', async (req, res) => {
         provinces,
         constituenciesByProvince,
         parties,
-        notices: [],
+        notices: req.i18n.t(`federal.notices`) ?? [],
     });
 });
 
@@ -253,21 +253,40 @@ const PROVINCES = {
         disclosureCollection: "manitoba_disclosures",
         mapDisclosures: member => {
             for (const disclosure of member.disclosures) { 
-                if (disclosure.content.includes("Real Property:")) member.homeowner = true;
-                if (disclosure.content.includes("Mortgages:")) member.homeowner = true;
-                if (disclosure.content.includes("Rental Properties and Rental Income")) member.landlord = true;
+                if (disclosure.category.includes("(Spouse)")) {
+                    continue
+                }
+                if (disclosure.category.includes("(Dependent)")) {
+                    continue
+                }
+                if (disclosure.category.includes("Real Property Interests")) member.homeowner = true;
+                if (disclosure.category.includes("Mortgages")) member.homeowner = true;
+
+                if (disclosure.content.includes("Rental Property")) member.landlord = true;
                 if (disclosure.content.includes("Rental income")) member.landlord = true;
-                if (disclosure.content.includes("interest in a rental property")) member.landlord = true;
-                if (disclosure.content.includes("secondary residence")) member.landlord = true;
-                if (disclosure.content.includes("No rental properties")) member.landlord = false;
-                if (disclosure.content.includes("No rental income")) member.landlord = false;
-                if (disclosure.content.includes("Investments and Mutual Funds")) member.investor = true;
-                if (disclosure.content.includes("Interests in Private Corporations:") && 
-                !disclosure.content.includes("No interests in private corporations")) member.investor = true;
-                if (disclosure.content.includes("ETF is held")) member.investor = true;
-                if (disclosure.content.includes("Shares are held")) member.investor = true;
-                if (disclosure.content.includes("Shares in")) member.investor = true;
-                if (disclosure.content.includes("shareholding interest")) member.investor = true;           
+                if (disclosure.content.includes("Rental\nProperty\n")) member.landlord = true;
+                if (disclosure.content.includes("Rental property")) member.landlord = true;
+                if (disclosure.content.includes("Secondary\nresidence")) member.landlord = true;
+                if (disclosure.content.includes("rental\nproperty")) member.landlord = true; 
+                if (disclosure.content.includes("RENTAL\nINCOME")) member.landlord = true; 
+                if (disclosure.content.includes("Renters")) member.landlord = true; 
+
+                
+                if (disclosure.category.includes("Real Property Interests")) {
+                    if (!disclosure.content.includes("**Deleted**") 
+                        && !disclosure.content.startsWith("Boat")
+                        && !disclosure.content.startsWith("Equipment used for farming")
+                        && !disclosure.content.startsWith("Specialized equipment")) {
+                        member.landlord = true; 
+                        member.homeowner = true;
+                        member.investor = true
+                    }
+                }
+                
+                if (disclosure.category.includes("Mutual Funds")) member.investor = true;   
+                if (disclosure.category.includes("Private Business Interests")) member.investor = true;  
+                if (disclosure.category.includes("Private Corporations")) member.investor = true;  
+                if (disclosure.category.includes("Securities")) member.investor = true; 
             }
             return member;
         },
@@ -510,7 +529,7 @@ app.get('/:lang/nl/:constituency', async (req, res) => {
 app.get('/:lang/mb/:constituency', async (req, res) => {
     const { lang, constituency: constituency_slug } = req.params;
 
-    if (lang === "fr") return res.redirect(307, `/en/ab/${constituency_slug}`);
+    if (lang === "fr") return res.redirect(307, `/en/mb/${constituency_slug}`);
 
     let mla = await MANITOBA_MLAS.findOne({ constituency_slug }, COLLATION);
     let disclosures = await MANITOBA_DISCLOSURES.find({ name: mla.name }, COLLATION).sort({ category: 1 }).toArray();
@@ -519,21 +538,38 @@ app.get('/:lang/mb/:constituency', async (req, res) => {
     let landlord = false;
     let investor = false;
     for (let i=0; i<disclosures.length;++i) {
-        if (disclosures[i]['content'].includes("Real Property:")) homeowner = true;
-        if (disclosures[i]['content'].includes("Mortgages:")) homeowner = true;
-        if (disclosures[i]['content'].includes("Rental Properties and Rental Income")) landlord = true;
-        if (disclosures[i]['content'].includes("Rental income")) landlord = true;
-        if (disclosures[i]['content'].includes("interest in a rental property")) landlord = true;
-        if (disclosures[i]['content'].includes("secondary residence")) landlord = true;
-        if (disclosures[i]['content'].includes("No rental properties")) landlord = false;
-        if (disclosures[i]['content'].includes("No rental income")) landlord = false;
-        if (disclosures[i]['content'].includes("Investments and Mutual Funds")) investor = true;
-        if (disclosures[i]['content'].includes("Interests in Private Corporations:") &&
-        !disclosures[i]['content'].includes("No interests in private corporations")) investor = true;
-        if (disclosures[i]['content'].includes("ETF is held")) investor = true;
-        if (disclosures[i]['content'].includes("Shares are held")) investor = true;
-        if (disclosures[i]['content'].includes("Shares in")) investor = true;
-        if (disclosures[i]['content'].includes("shareholding interest")) investor = true;
+        if (disclosures[i].category.includes("(Spouse)")) {
+            continue
+        }
+        if (disclosures[i].category.includes("(Dependent)")) {
+            continue
+        }
+        if (disclosures[i].category.includes("Mortgages")) homeowner = true;
+
+        if (disclosures[i].content.includes("Rental Property")) landlord = true;
+        if (disclosures[i].content.includes("Rental income")) landlord = true;
+        if (disclosures[i].content.includes("Rental\nProperty\n")) landlord = true;
+        if (disclosures[i].content.includes("Rental property")) landlord = true;
+        if (disclosures[i].content.includes("Secondary\nresidence")) landlord = true;
+        if (disclosures[i].content.includes("rental\nproperty")) landlord = true; 
+        if (disclosures[i].content.includes("RENTAL\nINCOME")) landlord = true; 
+        if (disclosures[i].content.includes("Renters")) landlord = true; 
+
+        if (disclosures[i].category.includes("Real Property Interests")) {
+            if (!disclosures[i].content.includes("**Deleted**") 
+                && !disclosures[i].content.startsWith("Boat")
+                && !disclosures[i].content.startsWith("Equipment used for farming")
+                && !disclosures[i].content.startsWith("Specialized equipment")) {
+                landlord = true; 
+                homeowner = true;
+                investor = true;
+            }
+        }
+        
+        if (disclosures[i].category.includes("Mutual Funds")) investor = true;   
+        if (disclosures[i].category.includes("Private Business Interests")) investor = true;  
+        if (disclosures[i].category.includes("Private Corporations")) investor = true;  
+        if (disclosures[i].category.includes("Securities")) investor = true; 
     }
 
     res.render('member', {
