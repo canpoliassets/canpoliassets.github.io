@@ -37,6 +37,15 @@ const NOVA_SCOTIA_DISCLOSURES = database.collection('nova_scotia_disclosures');
 const PEI_MLAS = database.collection('pei_mlas');
 const PEI_DISCLOSURES = database.collection('pei_disclosures');
 
+const NEW_BRUNSWICK_MLAS = database.collection('new_brunswick_mlas');
+const NEW_BRUNSWICK_DISCLOSURES = database.collection('new_brunswick_disclosures');
+
+const BRITISH_COLUMBIA_MLAS = database.collection('british_columbia_mlas');
+const BRITISH_COLUMBIA_DISCLOSURES = database.collection('british_columbia_disclosures');
+
+const SASKATCHEWAN_MLAS = database.collection('saskatchewan_mlas');
+const SASKATCHEWAN_DISCLOSURES = database.collection('saskatchewan_disclosures');
+
 const COLLATION = { collation : {locale: "fr_CA", strength: 2 }}
 
 const app = express();
@@ -326,6 +335,30 @@ const PROVINCES = {
                     member.investor = true;
                 }
             }
+            return member;
+        },
+    },
+    nb: {
+        collection: NEW_BRUNSWICK_MLAS,
+        portraitPath: "nb_mla_images",
+        disclosureCollection: "nb_disclosures",
+        mapDisclosures: member => {
+            return member;
+        },
+    },
+    bc: {
+        collection: BRITISH_COLUMBIA_MLAS,
+        portraitPath: "bc_mla_images",
+        disclosureCollection: "bc_disclosures",
+        mapDisclosures: member => {
+            return member;
+        },
+    },
+    sk: {
+        collection: SASKATCHEWAN_MLAS,
+        portraitPath: "sk_mla_images",
+        disclosureCollection: "sk_disclosures",
+        mapDisclosures: member => {
             return member;
         },
     },
@@ -653,6 +686,78 @@ app.get('/:lang/pe/:constituency', async (req, res) => {
         homeowner: englishHomeTextGenerator(mla['name'], "Homeowner", homeowner),
         landlord: englishHomeTextGenerator(mla['name'], "Landlord", landlord),
         investor: englishInvestorTextGenerator(mla['name'], investor),
+    });
+});
+
+app.get('/:lang/nb/:constituency', async (req, res) => {
+    const { lang, constituency: constituency_slug } = req.params;
+
+    if (lang === "fr") return res.redirect(307, `/en/nb/${constituency_slug}`);
+
+    let mla = await NEW_BRUNSWICK_MLAS.findOne({ constituency_slug }, COLLATION);
+    let disclosures = await NEW_BRUNSWICK_DISCLOSURES.find({ name: mla.name }, COLLATION).sort({ category: 1 }).toArray();
+
+    let homeowner = false;
+    let landlord = false;
+    let investor = false;
+
+    res.render('member', {
+        title: 'Member Details',
+        siteTitle: req.i18n.t("nb.title"),
+        portraitPath: "nb_mla_images",
+        ...mla,
+        groupedDisclosures: groupDisclosures(disclosures),
+        homeowner: "No data is available on Home Ownership. See the notice on the main page.",
+        landlord: "No data is available on Property Ownership. See the notice on the main page.",
+        investor: "No data is available on Assets & Investments. See the notice on the main page.",
+    });
+});
+
+app.get('/:lang/sk/:constituency', async (req, res) => {
+    const { lang, constituency: constituency_slug } = req.params;
+
+    if (lang === "fr") return res.redirect(307, `/en/sk/${constituency_slug}`);
+
+    let mla = await SASKATCHEWAN_MLAS.findOne({ constituency_slug }, COLLATION);
+    let disclosures = await SASKATCHEWAN_DISCLOSURES.find({ name: mla.name }, COLLATION).sort({ category: 1 }).toArray();
+
+    let homeowner = false;
+    let landlord = false;
+    let investor = false;
+
+    res.render('member', {
+        title: 'Member Details',
+        siteTitle: req.i18n.t("sk.title"),
+        portraitPath: "sk_mla_images",
+        ...mla,
+        groupedDisclosures: groupDisclosures(disclosures),
+        homeowner: "No data is available on Home Ownership. See the notice on the main page.",
+        landlord: "No data is available on Property Ownership. See the notice on the main page.",
+        investor: "No data is available on Assets & Investments. See the notice on the main page.",
+    });
+});
+
+app.get('/:lang/bc/:constituency', async (req, res) => {
+    const { lang, constituency: constituency_slug } = req.params;
+
+    if (lang === "fr") return res.redirect(307, `/en/sk/${constituency_slug}`);
+
+    let mla = await BRITISH_COLUMBIA_MLAS.findOne({ constituency_slug }, COLLATION);
+    let disclosures = await BRITISH_COLUMBIA_DISCLOSURES.find({ name: mla.name }, COLLATION).sort({ category: 1 }).toArray();
+
+    let homeowner = false;
+    let landlord = false;
+    let investor = false;
+
+    res.render('member', {
+        title: 'Member Details',
+        siteTitle: req.i18n.t("bc.title"),
+        portraitPath: "bc_mla_images",
+        ...mla,
+        groupedDisclosures: groupDisclosures(disclosures),
+        homeowner: "No data is available on Home Ownership. See the notice on the main page.",
+        landlord: "No data is available on Property Ownership. See the notice on the main page.",
+        investor: "No data is available on Assets & Investments. See the notice on the main page.",
     });
 });
 

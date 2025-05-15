@@ -16,6 +16,28 @@
             "label": "Office of the Ethics Commissioner"
         }
     },
+    "bc": {
+        "title": "Is My MLA a Landlord?",
+        "dataSource": {
+            "href": "https://www.leg.bc.ca/about/accountability/members-disclosures/public-disclosure-statements",
+            "label": "Legislative Assembly of British Columbia"
+        },
+        "notices": [
+            "British Columbia has not released ethics disclosures for the most recent provincial government.",
+            "When contacted, the Legislative Library indicated this data should become available by the end of May."
+        ]
+    },
+    "sk": {
+        "title": "Is My MLA a Landlord?",
+        "dataSource": {
+            "href": "https://www.legassembly.sk.ca/mlas/mla-disclosure-statements/",
+            "label": "Legislative Assembly of Saskatchewan"
+        },
+        "notices": [
+            "Saskatchewan has not released ethics disclosures for the most recent provincial government.",
+            "When contacted, the Legislative Library indicated this data may become available some time in July."
+        ]
+    },
     "on": {
         "title": "Is My MPP a Landlord?",
         "dataSource": {
@@ -36,7 +58,8 @@
     "nl": {
         "title": "Is My MHA a Landlord?",
         "notices": [
-            "All data sourced from the work of Isaac Peltz. Data is limited."
+            "All data is sourced from the work of Isaac Peltz, and contains a limited data set of what MHA's voluntarily disclosed to us.",
+            "Newfoundland & Labrador do not otherwise release any public ethics disclosure data."
         ]
     },
     "mb": {
@@ -55,6 +78,18 @@
         },
         "notices": [
             "Nova Scotia disclosures are not as thorough as other jurisdictions. The contents of the disclosures are accurate, but we are working to improve how we define and flag landlords for this province."
+        ]
+    },
+    "nb": {
+        "title": "Is My MLA a Landlord?",
+        "dataSource": {
+            "href": "https://www.legnb.ca/en/members/disclosures",
+            "label": "Legislative Assembly of New Brunswick"
+        },
+        "notices": [
+            "New Brunswick is more than 3 years behind on their ethics disclosures.",
+            "When contacted, the Integrity Commissioner of New Brunswick's office indicated no timeline for when 2022 will have complete data, nor future years.",
+            "We encourage you to contact them about this."
         ]
     },
     "pe": {
