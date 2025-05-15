@@ -14,6 +14,28 @@
             "label": "le Bureau du commissaire à l'éthique"
         }
     },
+    "bc": {
+        "title": "Mon député est-il un propriétaire?",
+        "dataSource": {
+            "href": "https://www.leg.bc.ca/about/accountability/members-disclosures/public-disclosure-statements",
+            "label": "Assemblée législative de la Colombie-Britannique"
+        },
+        "notices": [
+            "La Colombie-Britannique n'a pas publié de déclaration d'éthique pour le dernier gouvernement provincial.",
+            "Contactée, la bibliothèque législative a indiqué que ces données devraient être disponibles d'ici la fin du mois de mai."
+        ]
+    },
+    "sk": {
+        "title": "Mon député est-il un propriétaire?",
+        "dataSource": {
+            "href": "https://www.legassembly.sk.ca/mlas/mla-disclosure-statements/",
+            "label": "Assemblée législative de la Saskatchewan"
+        },
+        "notices": [
+            "La Saskatchewan n'a pas publié de déclaration d'éthique pour le dernier gouvernement provincial.",
+            "Contactée, la bibliothèque législative a indiqué que ces données pourraient être disponibles dans le courant du mois de juillet."
+        ]
+    },
     "on": {
         "title": "Mon député est-il un propriétaire?",
         "dataSource": {
@@ -30,7 +52,10 @@
     },
     "nl": {
         "title": "Mon député est-il un propriétaire?",
-        "notices": ["Toutes les données proviennent des travaux d'Isaac Peltz. Les données sont limitées."]
+        "notices": [
+            "Toutes les données proviennent du travail d'Isaac Peltz et contiennent un ensemble limité de données que les MHA nous ont volontairement communiquées.",
+            "Terre-Neuve-et-Labrador ne publie par ailleurs aucune donnée publique sur la divulgation de l'éthique."
+        ]
     },
     "mb": {
         "title": "Mon député est-il un propriétaire?",
@@ -48,6 +73,19 @@
         },
         "notices": [
             "Les informations fournies par la Nouvelle-Écosse ne sont pas aussi complètes que celles fournies par d'autres juridictions. Le contenu des déclarations est exact, mais nous nous efforçons d'améliorer la façon dont nous définissons et signalons les propriétaires."
+        ]
+    },
+    
+    "nb": {
+        "title": "Mon député est-il un propriétaire?",
+        "dataSource": {
+            "href": "https://www.legnb.ca/en/members/disclosures",
+            "label": "Assemblée législative du Nouveau-Brunswick"
+        },
+        "notices": [
+            "Le Nouveau-Brunswick a plus de trois ans de retard en matière de divulgation d'informations sur l'éthique.",
+            "Contacté, le bureau du commissaire à l'intégrité du Nouveau-Brunswick n'a pas indiqué de calendrier pour l'obtention des données complètes en 2022, ni pour les années suivantes.",
+            "Nous vous encourageons à les contacter à ce sujet."
         ]
     },
     "pe": {
