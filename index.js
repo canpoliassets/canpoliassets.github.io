@@ -118,7 +118,6 @@ app.get('/:lang', async (req, res) => {
     ]).map(member => {
         for (const match of member.sheet_data_matches) {
             if (match.landlord === "Y") member.landlord = true;
-            if (match.homeowner === "Y") member.homeowner = true;
             if (match.investor === "Y") member.investor = true;
         }
         member.province = getProvinceKey(member.province);
@@ -182,7 +181,6 @@ const PROVINCES = {
         mapDisclosures: member => {
             for (const disclosure of member.disclosures) {
                 // TODO: use a regex
-                if (member.homeowner = disclosure.content === "property") member.homeowner = true;
                 if (disclosure.content.includes("Rental Property") || disclosure.content.includes("Rental Income")) member.landlord = true;
                 if (
                     disclosure.category.includes("Securities")
@@ -200,13 +198,6 @@ const PROVINCES = {
         disclosureCollection: "ontario_disclosures",
         mapDisclosures: member => {
             for (const disclosure of member.disclosures) {
-                if (
-                    disclosure.category === "Assets" && (
-                        disclosure.content.includes("securities")
-                        || disclosure.content.includes("Shares")
-                        || disclosure.content.includes("Investments and registered accounts")
-                    )
-                ) member.homeowner = true;
                 if (
                     disclosure.category === "Income" &&
                     disclosure.content.includes("Rental")
@@ -232,7 +223,6 @@ const PROVINCES = {
         disclosureCollection: "quebec_disclosures",
         mapDisclosures: member => {
             for (const disclosure of member.disclosures) {
-                if (disclosure.content.includes('résidentielles personnelles')) member.homeowner = true;
                 if (disclosure.content.includes("Revenu de location")) member.landlord = true;
                 if (
                     disclosure.category.includes("Fiducie ou mandat sans droit de regard") ||
@@ -249,7 +239,6 @@ const PROVINCES = {
         disclosureCollection: "newfoundland_disclosures",
         mapDisclosures: member => {
             for (const disclosure of member.disclosures) {
-                member.homeowner = true; // True per Isaac Peltz - we can implement proper filtering if NL government ever releases real data. . .
                 if (disclosure.content.includes("rental")) member.landlord = true;
                 if (disclosure.category.includes("Inc.")) member.investor = true;
             }
@@ -268,8 +257,6 @@ const PROVINCES = {
                 if (disclosure.category.includes("(Dependent)")) {
                     continue
                 }
-                if (disclosure.category.includes("Real Property Interests")) member.homeowner = true;
-                if (disclosure.category.includes("Mortgages")) member.homeowner = true;
 
                 if (disclosure.content.includes("Rental Property")) member.landlord = true;
                 if (disclosure.content.includes("Rental income")) member.landlord = true;
@@ -287,7 +274,6 @@ const PROVINCES = {
                         && !disclosure.content.startsWith("Equipment used for farming")
                         && !disclosure.content.startsWith("Specialized equipment")) {
                         member.landlord = true; 
-                        member.homeowner = true;
                         member.investor = true
                     }
                 }
@@ -306,8 +292,6 @@ const PROVINCES = {
         disclosureCollection: "nova_scotia_disclosures",
         mapDisclosures: member => {
             for (const disclosure of member.disclosures) { 
-                if (disclosure.category.includes("Property")) member.homeowner = true;
-                if (disclosure.content.includes("Mortgage")) member.homeowner = true;
                 if (disclosure.content.includes("Rental")) member.landlord = true;
                 if (disclosure.content.includes("Landlord")) member.landlord = true;
                 if (disclosure.category.includes("Property") &&
