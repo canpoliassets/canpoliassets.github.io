@@ -18,18 +18,6 @@ block main
               p.mp-province=province
     .centered
       ul.ul
-        li.homeowner
-          case home_owner
-            when "Y"
-              | #{name} is a Home Owner
-            when "N"
-              | #{name} is not known to be a Home Owner
-            when "UNDISCLOSED"
-              | #{name} has not disclosed their Home Ownership status.
-            when "NOT SUBMITTED"
-              | #{name} has not submitted their ethics disclosure regarding Home Ownership.
-            default
-              | It is not presently known if #{name} is a Home Owner.
         li.landlord
           case landlord
             when "Y"
