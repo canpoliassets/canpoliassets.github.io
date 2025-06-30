@@ -173,6 +173,23 @@ app.get('/:lang/federal/:constituency', async (req, res) => {
     });
 });
 
+// We have this via Isaac Peltz from voluntary government admissions - no need to be clever about it.
+// Instead of computing fancy text parsing, let's just pull the list directly until we get real data.
+let nlLandlords = [
+    "John Abbott",
+    "Derek Bennett",
+    "Gerry Byrne",
+    "Siobhan Coady",
+    "Andrew Furey",
+    "John Hogan",
+    "Krista Lynn Howell",
+    "Fred Hutton",
+    "Helen Conway Ottenheimer",
+    "Craig Pardy",
+    "Andrew Parsons",
+    "Scott Ried",
+    "Tony Wakeham"
+]
 const PROVINCES = {
     ab: {
         collection: ALBERTA_MLAS,
@@ -239,7 +256,9 @@ const PROVINCES = {
         disclosureCollection: "newfoundland_disclosures",
         mapDisclosures: member => {
             for (const disclosure of member.disclosures) {
-                if (disclosure.content.includes("rental")) member.landlord = true;
+                if (nlLandlords.includes(disclosure.name)) {
+                    member.landlord = true;
+                }
                 if (disclosure.category.includes("Inc.")) member.investor = true;
             }
             return member;
@@ -522,7 +541,7 @@ app.get('/:lang/nl/:constituency', async (req, res) => {
         if (disclosures[i]['content'].includes("Inc.")) {
             investor = true;
         }
-        if (disclosures[i]['content'].includes("rental")) {
+        if (nlLandlords.includes(mha.name)) {
             landlord = true;
         }
         if (disclosures[i]['content'].includes("residential")) {
