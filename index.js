@@ -517,6 +517,7 @@ app.get('/:lang/qc/:constituency', async (req, res) => {
     res.render('member', {
         siteTitle: req.i18n.t("ab.title"),
         title: 'Détails du Membre',
+        portraitPath: "mna_images",
         ...mna,
         groupedDisclosures: groupDisclosures(disclosures),
         homeowner: quebecHomeOwnerGenerator(mna['name'], homeowner),
